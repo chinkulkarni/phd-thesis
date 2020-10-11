@@ -1,0 +1,51 @@
+\chapter{Extensibility and Multi-Tenancy}
+
+Since the end of Dennard scaling, disaggregation has become the norm in
+the datacenter.
+%
+Applications are typically broken into a compute and
+storage tier separated by a high speed network, allowing each tier to be
+provisioned, managed, and scaled independently.
+%
+However, this approach
+is beginning to reach its limits.
+%
+Applications have evolved to become more data intensive than ever.
+%
+In addition to good performance, they often require rich and complex
+data models such as social graphs, decision trees,
+vectors~\cite{fb-memcache, parameter-server} etc.
+%
+Storage systems, on the other hand, have become faster with the help of
+kernel-bypass~\cite{ramcloud, farm-txns}, but at the cost of their
+interface – typically simple point lookups and updates.
+%
+As a result of using these simple interfaces to implement their data
+model, applications end up stalling on network round-trips to the
+storage tier.
+%
+Since the actual lookup or update takes only a few
+microseconds at the storage server, these round-trips create a major
+bottleneck, hurting performance and utilization.
+%
+Therefore, to fully
+leverage these fast storage systems, applications will have to reduce
+round-trips by pushing compute to them.
+
+Pushing compute to these fast storage systems is
+not straightforward.
+%
+To maximize utilization, these
+systems need to be shared by multiple tenants,
+but the cost for isolating tenants using conventional techniques is too
+high.
+%
+Hardware isolation
+requires a context switch that takes approximately
+1.5 microseconds on a modern processor~\cite{splinter}.
+%
+This
+is roughly equal to the amount of time it takes to
+fully process an RPC at the storage server, meaning
+that conventional isolation can hurt throughput by
+a factor of 2 (Fig 1).
