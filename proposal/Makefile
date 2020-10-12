@@ -107,9 +107,11 @@ TRUE		= true
 ### on the next "make" command!
 
 PDFFILES	= graphs/simulator.pdf          \
+		  graphs/migration-motivation.pdf
 
-FIGFILES	= simulator.tex
-      
+FIGFILES	= simulator.tex			\
+		  cluster.tex
+
 STYFILES	= amssymb.sty			\
 		  amssymbols.sty		\
 		  diagram.sty			\
@@ -123,7 +125,8 @@ STYFILES	= amssymb.sty			\
 
 TEXFILES        = abstract.tex			\
 		  acknowledge.tex               \
-		  splinter.tex
+		  splinter.tex			\
+		  rocksteady.tex
 
 THESIS		= chinmay-proposal
 
