@@ -106,11 +106,13 @@ TRUE		= true
 ### then a change to that file would not cause typesetting to be done
 ### on the next "make" command!
 
-PDFFILES	= graphs/simulator.pdf          \
-		  graphs/migration-motivation.pdf
+PDFFILES	= graphs/simulator.pdf            \
+		  graphs/migration-motivation.pdf \
+		  figures/pipeline.pdf
 
 FIGFILES	= simulator.tex			\
-		  cluster.tex
+		  cluster.tex			\
+		  pipeline.tex
 
 STYFILES	= amssymb.sty			\
 		  amssymbols.sty		\
@@ -126,7 +128,8 @@ STYFILES	= amssymb.sty			\
 TEXFILES        = abstract.tex			\
 		  acknowledge.tex               \
 		  splinter.tex			\
-		  rocksteady.tex
+		  rocksteady.tex		\
+		  sofaster.tex
 
 THESIS		= chinmay-proposal
 

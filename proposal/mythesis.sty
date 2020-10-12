@@ -8,6 +8,9 @@
 %%% may reject your LaTeX files because nonstandard markup interferes
 %%% with their large-volume production practices.
 
+\usepackage{textcomp}
+\usepackage{xspace}
+
 \newcommand {\mainindex}   [1] {\index{#1|mainpage}}
 \newcommand {\mainpage}    [1] {\textbf{#1}}
 
@@ -45,6 +48,7 @@
 \def \verbatim@font {\normalfont \ttfamily \color{verbatimcolor}}
 \newcommand{\cpp}[1]{\lstinline[basicstyle=\ttfamily,language=C++]|#1|}
 \newcommand{\memcpy}[0]{\texttt{memcpy}}
+\newcommand{\us}{\textmu{}s\xspace}
 \setlength\fboxsep{10pt}
 \fboxrule=2pt\relax
 \hyphenpenalty=10000
