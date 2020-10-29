@@ -126,7 +126,8 @@ STYFILES	= amssymb.sty			\
 		  uuthesis-color-headings.sty
 
 TEXFILES        = abstract.tex			\
-		  acknowledge.tex               \
+		  acknowledge.tex		\
+		  introduction.tex		\
 		  splinter.tex			\
 		  rocksteady.tex		\
 		  sofaster.tex
