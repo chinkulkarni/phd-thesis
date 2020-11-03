@@ -86,8 +86,11 @@ it can shift load in 17~s to improve cluster throughput by
 with little disruption.
 %
 Compared to the state-of-the-art, it has 8$\times{}$ better throughput (than
-Seastar+memcached~\cite{seastar}) and scales out 6$\times{}$ faster (than
+Seastar+memcached~\cite{seastar}
+(Figure~\ref{fig:seastar})) and scales out 6$\times{}$ faster (than
 Rocksteady~\cite{rocksteady}).
+
+\input{seastar}
 
 Three key pieces of Shadowfax help
 eliminate coordination throughout the client- and server-side by eliminating

@@ -1,0 +1,13 @@
+\begin{figure}[t]
+\includegraphics[width=\textwidth]{graphs/tao.pdf}
+\caption{
+TAO extension throughput versus latency. With 60\% \texttt{object\_get}
+and 40\%
+\texttt{assoc\_range} operations, the TAO extension can reach 2.8 Mop/s before
+saturating with an average latency of 30 \us. By using native
+\texttt{get()}
+operations for \texttt{object\_get}, the extension-based approach can outperform a
+purely client-side implementation by 400 Kop/s.
+}
+\label{fig:tao}
+\end{figure}

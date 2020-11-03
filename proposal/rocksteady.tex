@@ -79,6 +79,8 @@ Putting all these parts
 together results in a protocol that migrates data 100x faster than the
 state-of-the-art while maintaining tail latencies 1000x lower.
 
+\input{running-latency}
+
 Overall, Rocksteady’s careful attention to ownership, scheduling, and
 fault tolerance allow it to quickly and safely migrate data with low
 impact to performance.
@@ -86,7 +88,7 @@ impact to performance.
 Experiments show that it can migrate at 758 MBps
 while maintaining tail latency below 250 microseconds; this is
 equivalent to migrating 256 GB of data in 6 minutes, allowing for quick
-scale-up and scale-down of a cluster.
+scale-up and scale-down of a cluster (Figure~\ref{fig:running-latency}).
 %
 Experiments also show the benefits
 of leveraging skew: at low skew, Rocksteady keeps median latency below

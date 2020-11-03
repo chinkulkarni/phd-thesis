@@ -108,11 +108,17 @@ TRUE		= true
 
 PDFFILES	= graphs/simulator.pdf            \
 		  graphs/migration-motivation.pdf \
+		  graphs/tao.pdf		  \
+		  graphs/running-latency.pdf	  \
+		  graphs/seastar.pdf		  \
 		  figures/pipeline.pdf
 
 FIGFILES	= simulator.tex			\
 		  cluster.tex			\
-		  pipeline.tex
+		  pipeline.tex			\
+		  tao.tex			\
+		  running-latency.tex		\
+		  seastar.tex
 
 STYFILES	= amssymb.sty			\
 		  amssymbols.sty		\

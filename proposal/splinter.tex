@@ -100,13 +100,15 @@ With the help of these mechanisms, Splinter can isolate
 100’s of granular tenant extensions per core while serving millions of
 operations per second with microsecond latencies.
 
+\input{tao}
+
 Overall, Splinter adds extensibility to fast kernel-bypass storage
 systems, making it easier for applications to use them.
 %
 An 800 line Splinter extension implementing Facebook’s TAO graph
 model~\cite{tao-2013}
 can serve 2.8 million ops/s on 8 threads with an average latency of
-30 microseconds.
+30 microseconds (Figure~\ref{fig:tao}).
 %
 A significant fraction of TAO operations involve only a single
 round-trip.
