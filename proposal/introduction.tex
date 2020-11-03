@@ -1,0 +1,229 @@
+\chapter{Introduction}
+
+The last decade of computer systems research has yielded efficient
+scale-out in-memory stores with throughput and access latency thousands
+of times better than conventional stores.
+%
+Today, even modest clusters of
+these machines can execute billions of operations per second with access
+times of 6~\us or less~\cite{mica,ramcloud,farm-2014}.
+
+These gains come from careful attention to detail in request processing,
+so these systems often start with simple and stripped-down designs to
+achieve performance goals.
+%
+% For these systems to be practical in the long-term, they must evolve to
+% include many of the features that conventional data center and cloud
+% storage systems have while preserving their performance benefits.
+%
+For example, they expose simple, highly
+optimized storage interfaces – typically point lookups and updates.
+%
+However,
+% current trends severely restrict their use in datacenters.
+%
+since the end
+of Dennard scaling, \emph{disaggregating} compute from storage,
+horizontally scaling, and sharing each independent of the other has become the norm
+for improving performance and utilization.
+%
+Simple storage interfaces can
+hurt performance and utilization in the presence of disaggregation; applications
+traversing complex data structures (social graphs, decision trees etc)
+end up stalling on network round-trips.
+%
+These round-trips become a major
+bottleneck; network transmission and processing typically takes tens of
+microseconds in these systems, while application logic typically takes
+less than a microsecond per lookup/update.
+%
+% Another trend is
+% \emph{multi-tenancy}; sharing a resource between many tenants helps improve
+% utilization.
+%
+% However, the granularity (containers and VMs) and density
+% (1-2 tenants per core) of sharing in today’s datacenters is insufficient
+% to keep these fast storage systems at high utilization.
+
+Similarly, many of these systems optimize for normal case performance by statically
+partitioning records across cores to eliminate cross-core synchronization.
+%
+However, this makes concurrent operations like migration and scale out
+impossible; transferring record data and ownership between machines and
+cores requires a stop-the-world approach due to these systems’ lack of
+fine-grained synchronization.
+%
+To be practical and cost-effective, a complete system
+must scale across
+machines as well as cores, and must be elastic, by provisioning and
+reconfiguring over inexpensive generic cloud resources as workload
+demands change.
+
+For these low-latency stores to be practical in the long-term, they must evolve to
+include many of the features that conventional data center and cloud
+storage systems have while preserving their performance benefits.
+%
+This thesis presents vertical and horizontal mechanisms that
+would help enable many of these features.
+%
+It is structured into three key pieces.
+%
+The first piece presents a vertical mechanism for safely migrating
+untrusted code to a low-latency store, enabling \emph{extensibility
+and multi-tenancy}.
+%
+The second piece presents a horizontal mechanism for \emph{fast data
+migration}, enabling rapid reconfiguration and elasticity.
+%
+The final piece presents horizontal and vertical mechanisms for \emph{low cost
+coordination}, that provide high throughput in the normal case, and during distributed
+reconfiguration, by avoiding serial bottlenecks within both, servers and
+clients.
+
+\section{Contributions}
+
+{\bf
+  Low-latency stores adopt simple, stipped down designs that optimize
+  for normal case performance, and in the process, trade off their
+  data model, as well as features such as reconfiguration that
+  would make them more practical and cost effective at cloud scale.
+%
+  This thesis argues that such a trade off is unnecessary; carefully
+  leveraging new and existing abstractions for isolation, scheduling,
+  data sharing, and lock-freedom will yield feature-rich systems that
+  retain their primary performance benefits at cloud scale.
+}
+
+\subsection{Extensibility and Multi-Tenancy}
+
+% In-memory key-value stores that use kernel-bypass networking
+% serve millions of operations per second per machine with microseconds of latency.
+%
+% They are fast in part because they are simple, but their
+% simple interfaces force applications to move data across the network.
+%
+Simple storage interfaces are inefficient for operations
+that aggregate over large amounts of data, and they cause delays
+when traversing complex data structures.
+%
+Ideally, applications could push small functions to storage to avoid
+round trips and data movement; however, pushing code to these
+fast systems is challenging.
+%
+Any extra complexity for interpreting
+or isolating code cuts into their performance benefits.
+
+\textsl{Splinter} provides clients with a vertical mechanism
+to extend low-latency key-value stores by migrating (pushing) code to them.
+%
+Splinter is designed for
+modern multi-tenant data centers; it allows mutually distrusting tenants to write
+their own fine-grained extensions and push
+them to the store at runtime.
+%
+The core of
+Splinter's design relies on type- and memory-safe
+extension code to avoid conventional hardware isolation costs.
+%
+This
+still allows for bare-metal execution, avoids data copying across trust
+boundaries, and makes granular storage functions that perform less than
+a microsecond of compute practical.
+%
+Measurements show that
+Splinter can process 3.5~million remote extension
+invocations per second with a median round-trip latency of less than 9~\us at
+densities of more than 1,000 tenants per server.
+%
+An
+implementation of Facebook's TAO as an 800~line extension when
+pushed to a Splinter server, improves performance by 400~Kop/s to perform
+3.2~Mop/s over online graph data with 30~\us remote access times.
+
+\subsection{Fast Data Migration}
+
+% Scalable in-memory key-value stores provide low-latency access times of a few
+% microseconds and perform millions of operations per second per server.
+%
+With all data in memory, scalable in-memory key-value should provide a high
+level of reconfigurability.
+%
+Ideally, they should scale up, scale down,
+and rebalance load more rapidly and flexibly than disk-based systems.
+%
+Rapid reconfiguration is especially important in these systems since a) DRAM is
+expensive and b) they are the last defense against highly dynamic
+workloads that suffer from hot spots, skew, and unpredictable load.
+%
+However, so far, work on in-memory key-value stores has generally focused
+on performance and availability, leaving reconfiguration as a secondary
+concern.
+
+Rocksteady is a live migration technique for scale-out
+in-memory key-value stores.
+%
+It balances three competing goals: it
+migrates data quickly, it minimizes response time impact, and it
+allows arbitrary, fine-grained splits.
+%
+Rocksteady migrates 758~MB/s
+between servers under high load while maintaining a median and \nnnth
+percentile latency of less than 40 and 250~\us, respectively, for concurrent operations
+  without pauses, downtime, or risk to durability
+(compared to 6 and
+45~\us during normal operation).
+%
+To do this, it 
+relies on pipelined and parallel replay and a lineage-like approach to
+fault-tolerance to defer re-replication costs during migration.
+%
+Rocksteady allows a key-value store to defer all repartitioning work
+until the moment of migration, giving it precise and timely control for
+load balancing.
+
+\subsection{Low Cost Coordination}
+
+Millions of sensors, mobile applications and machines are now
+generating billions of events.
+%
+These events are processed and
+aggregated in services in the cloud to gain insights and drive application
+logic.
+%
+This has led to specialized many-core key-value stores (KVSs) that can
+ingest and index these events at high rates (over 100 Mops/s on one machine).
+%
+These systems are efficient if events are
+generated on the same machine, but,
+%
+in practice, these events need
+to be aggregated from a wide and distributed set of data sources. Hence, fast
+indexing schemes alone only solve part of the problem.
+%
+To be practical and
+cost-effective they must ingest
+events over the network and scale across cloud resources elastically
+, provisioning and reconfiguring over inexpensive generic
+cloud resources as workload demands change.
+
+Shadowfax allows distributed KVS to
+transparently span DRAM, SSDs, and cloud blob storage while serving
+130~Mops/s/VM over commodity Azure VMs using conventional Linux TCP.
+%
+Beyond
+high single-VM performance, Shadowfax uses a unique approach to distributed
+reconfiguration that avoids any server-side key ownership checks
+or cross-core coordination both during normal operation and migration.
+%
+Hence,
+Shadowfax can shift load in 17~s to improve system throughput by
+10~Mops/s
+with little disruption. Compared to the state-of-the-art, it has 8$\times{}$ better throughput
+  (than Seastar+memcached) and scales out 6$\times{}$ faster.
+%
+When scaled to a small cluster, Shadowfax retains its high throughput to
+perform 400~Mops/s,
+%
+which, to the best of our knowledge, is the highest
+reported throughput for a distributed KVS used for
+large-scale data ingestion and indexing.
