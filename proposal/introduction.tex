@@ -236,7 +236,7 @@ a microsecond of compute practical.
 
 \section{Fast Data Migration}
 
-Rocksteady is a live migration technique for scale-out
+\emph{Rocksteady} is a live migration technique for scale-out
 in-memory key-value stores.
 %
 Built on top of RAMCloud~\cite{ramcloud}, Rocksteady’s key insight is to
@@ -300,40 +300,54 @@ data.
 
 \section{Low Cost Coordination}
 
-Millions of sensors, mobile applications and machines are now
-generating billions of events.
+\emph{Shadowfax} allows distributed key-value store to
+transparently span DRAM, SSDs, and cloud blob storage.
 %
-These events are processed and
-aggregated in services in the cloud to gain insights and drive application
-logic.
+Its unique approach to
+distributed reconfiguration avoids any cross-core coordination during
+normal operation and data migration both in its indexing and network interactions.
 %
-This has led to specialized many-core key-value stores (KVSs) that can
-ingest and index these events at high rates (over 100 Mops/s on one machine).
+In contrast to totally-ordered or stop-the-world approaches used by most
+systems, cores in Shadowfax avoid stalling to synchronize with one another, even when
+triggering complex operations like scale-out, which require
+defining clear before/after points in time among concurrent operations.
 %
-These systems are efficient if events are
-generated on the same machine, but,
+Instead, each core participating in these operations -- both at clients and
+servers -- independently decides a point in an \emph{asynchronous global
+cut} that defines a boundary between operation sequences in these complex operations.
 %
-in practice, these events need
-to be aggregated from a wide and distributed set of data sources. Hence, fast
-indexing schemes alone only solve part of the problem.
+Shadowfax vertically extends asynchronous cuts from cores within one
+process~\cite{faster} to servers
+and clients in a cluster.
 %
-To be practical and
-cost-effective they must ingest
-events over the network and scale across cloud resources elastically
-, provisioning and reconfiguring over inexpensive generic
-cloud resources as workload demands change.
+This helps coordinate server
+and client threads
+in Shadowfax's low-coordination data migration and
+reconfiguration protocol.
 
-Shadowfax allows distributed KVS to
-transparently span DRAM, SSDs, and cloud blob storage while serving
-130~Mops/s/VM over commodity Azure VMs using conventional Linux TCP.
+In addition to reconfiguration, Shadowfax has mechanisms that help it
+achieve a high throughput of 130~Mops/s/VM over
+commodity Azure VMs~\cite{azure}.
 %
-Beyond
-high single-VM performance, Shadowfax uses a unique approach to distributed
-reconfiguration that avoids any server-side key ownership checks
-or cross-core coordination both during normal operation and migration.
+First, all requests from a client on one machine to Shadowfax are asynchronous with
+respect to one another all the way throughout Shadowfax's client- and
+server-side network submission/completion paths and servers' indexing and
+(SSD and cloud storage) I/O paths.
 %
-Hence,
-Shadowfax can shift load in 17~s to improve system throughput by
+This avoids all client- and server-side stalls due to head-of-line
+blocking, ensuring that clients can always continue to generate requests and
+servers can always continue to process them.
+%
+Second, instead of partitioning data among cores to avoid synchronization on record
+accesses~\cite{hstore,voltdb,mica,seastar}, Shadowfax partitions network
+sessions across cores; its lock-free hash index and log-structured record heap
+are shared among all cores.
+%
+This risks contention when some records are hot and frequently
+mutated, but this is more than offset by the fact that no software-level
+inter-core request forwarding or routing is needed within server VMs.
+
+Measurements show that Shadowfax can shift load in 17~s to improve system throughput by
 10~Mops/s
 with little disruption. Compared to the state-of-the-art, it has 8$\times{}$ better throughput
   (than Seastar+memcached) and scales out 6$\times{}$ faster.
@@ -342,7 +356,7 @@ When scaled to a small cluster, Shadowfax retains its high throughput to
 perform 400~Mops/s,
 %
 which, to the best of our knowledge, is the highest
-reported throughput for a distributed KVS used for
+reported throughput for a distributed key-value store used for
 large-scale data ingestion and indexing.
 
 \section{Extensibility and Multi-Tenancy}
