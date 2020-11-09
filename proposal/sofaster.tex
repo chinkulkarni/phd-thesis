@@ -4,7 +4,7 @@ Millions of sensors, mobile applications, users, and machines now
 continuously generate billions of events.
 %
 These events are processed by streaming
-engines~\cite{spark-streaming, trill} and ingested and aggregated
+engines~\cite{spark-streaming,trill} and ingested and aggregated
 by state management systems (Figure~\ref{fig:pipeline}).
 %
 Real-time queries are issued against this ingested data to train and
@@ -87,10 +87,8 @@ with little disruption.
 %
 Compared to the state-of-the-art, it has 8$\times{}$ better throughput (than
 Seastar+memcached~\cite{seastar}
-(Figure~\ref{fig:seastar})) and scales out 6$\times{}$ faster (than
+and scales out 6$\times{}$ faster (than
 Rocksteady~\cite{rocksteady}).
-
-\input{seastar}
 
 Three key pieces of Shadowfax help
 eliminate coordination throughout the client- and server-side by eliminating
