@@ -118,7 +118,8 @@ FIGFILES	= simulator.tex			\
 		  pipeline.tex			\
 		  tao.tex			\
 		  running-latency.tex		\
-		  seastar.tex
+		  seastar.tex			\
+		  timeline.tex
 
 STYFILES	= amssymb.sty			\
 		  amssymbols.sty		\
@@ -136,7 +137,8 @@ TEXFILES        = abstract.tex			\
 		  introduction.tex		\
 		  splinter.tex			\
 		  rocksteady.tex		\
-		  sofaster.tex
+		  sofaster.tex			\
+		  timeline-preface.tex
 
 THESIS		= chinmay-proposal
 
