@@ -120,7 +120,12 @@ PDFFILES	= figures/ramcloud-cluster.pdf				\
 		  graphs/priopull-skew.pdf				\
 		  graphs/running-latency-only-priority.pdf		\
 		  graphs/running-dispatch-worker-only-priority.pdf	\
-		  graphs/rocksteady-scalability.pdf
+		  graphs/rocksteady-scalability.pdf			\
+		  figures/sandstorm-tree-traversal.pdf			\
+		  graphs/simulator.pdf					\
+		  figures/splinter-arch.pdf				\
+		  figures/tao-extension.pdf				\
+		  figures/work-stealing.pdf
 
 FIGFILES	= ramcloud-cluster.tex		\
 		  ramcloud-index.tex		\
@@ -136,7 +141,12 @@ FIGFILES	= ramcloud-cluster.tex		\
 		  priopull-skew.tex		\
 		  only-priority.tex		\
 		  only-priority-dispatch.tex	\
-		  rocksteady-scalability.tex
+		  rocksteady-scalability.tex	\
+		  tree-traversal.tex		\
+		  simulator.tex			\
+		  splinter-arch.tex		\
+		  tao-extension.tex		\
+		  work-stealing.tex
 
 STYFILES	= amssymb.sty			\
 		  amssymbols.sty		\
@@ -159,7 +169,11 @@ TEXFILES        = abstract.tex			\
 		  rocksteady-evaluation.tex	\
 		  rocksteady-discussion.tex	\
 		  rocksteady-related.tex	\
-		  rocksteady-conclusion.tex
+		  rocksteady-conclusion.tex	\
+		  splinter.tex			\
+		  splinter-introduction.tex	\
+		  splinter-motivation.tex	\
+		  splinter-design.tex
 
 THESIS		= chinmay-thesis
 

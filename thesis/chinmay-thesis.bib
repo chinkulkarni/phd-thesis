@@ -544,6 +544,7 @@ publisher = {USENIX Association},
 
 @misc{rust-2018,
  howpublished = {\url{http://www.rust-lang.org/en-US/}},
+ key = {rust},
  title = {{The Rust Programming Language}},
  note = {Accessed: 2018-09-27},
 }
@@ -565,7 +566,6 @@ publisher = {{USENIX} Association},
   author={Bershad, Brian N and Savage, Stefan and Pardyak, Przemyslaw and Sirer, Emin G{\"u}n and Fiuczynski, Marc E and Becker, David and Chambers, Craig and Eggers, Susan},
   booktitle={ACM SIGOPS Operating Systems Review},
   volume={29},
-  number={5},
   pages={267--283},
   year={1995},
   organization={ACM}
@@ -888,4 +888,138 @@ pages = {335--347},
 url =
 {https://www.usenix.org/conference/atc17/technical-sessions/presentation/wei},
 publisher = {{USENIX} Association},
+}
+
+@inproceedings {meltdown-2018,
+author = {Moritz Lipp and Michael Schwarz and Daniel Gruss and Thomas Prescher and Werner Haas and Anders Fogh and Jann Horn and Stefan Mangard and Paul Kocher and Daniel Genkin and Yuval Yarom and Mike Hamburg},
+title = {Meltdown: Reading Kernel Memory from User Space},
+booktitle = {Proceedings of the 27th {USENIX} Security Symposium ({USENIX} Security 18)},
+year = {2018},
+isbn = {978-1-931971-46-1},
+address = {Baltimore, MD},
+pages = {973--990},
+url = {https://www.usenix.org/conference/usenixsecurity18/presentation/lipp},
+publisher = {{USENIX} Association},
+}
+
+@misc{kpti-2018,
+ author = {Corbet, Jonathan},
+ howpublished = {\url{http://lwn.net/Articles/738975/}},
+ title = {{KAISER: hiding the kernel from user space}},
+ note = {Accessed: 2018-09-27}
+}
+
+@article{bigtable-2008,
+ author = {Chang, Fay and Dean, Jeffrey and Ghemawat, Sanjay and Hsieh, Wilson C. and Wallach, Deborah A. and Burrows, Mike and Chandra, Tushar and Fikes, Andrew and Gruber, Robert E.},
+ title = {{Bigtable: A Distributed Storage System for Structured Data}},
+ journal = {ACM Transactions on Computer Systems (TOCS)},
+ issue_date = {June 2008},
+ volume = {26},
+ number = {2},
+ month = jun,
+ year = {2008},
+ issn = {0734-2071},
+ pages = {4:1--4:26},
+ articleno = {4},
+ numpages = {26},
+ url = {http://doi.acm.org/10.1145/1365815.1365816},
+ doi = {10.1145/1365815.1365816},
+ acmid = {1365816},
+ publisher = {ACM},
+ address = {New York, NY},
+ keywords = {Large-Scale Distributed Storage},
+}
+
+@article{erpc-arxiv,
+  author    = {Anuj Kalia and
+               Michael Kaminsky and
+               David G. Andersen},
+  title     = {{D}atacenter {RPC}s can be {G}eneral and {F}ast},
+  journal   = {CoRR},
+  volume    = {abs/1806.00680},
+  year      = {2018},
+  url       = {http://arxiv.org/abs/1806.00680},
+  archivePrefix = {arXiv},
+  eprint    = {1806.00680},
+  timestamp = {Mon, 13 Aug 2018 16:49:06 +0200},
+  biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1806-00680},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{llvm,
+  title={{LLVM}: A compilation framework for lifelong program analysis \& transformation},
+  author={Lattner, Chris and Adve, Vikram},
+  booktitle={Proceedings of the international symposium on Code generation and optimization: feedback-directed and runtime optimization},
+  series = {CGO '04},
+  pages={75--86},
+  year={2004},
+  organization={IEEE}
+}
+
+@article{rustbelt-2018,
+  author    = {Ralf Jung and
+               Jacques{-}Henri Jourdan and
+               Robbert Krebbers and
+               Derek Dreyer},
+  title     = {{R}ust{B}elt: {S}ecuring the {F}oundations of the {R}ust {P}rogramming {L}anguage},
+  journal   = {Proceedings of the ACM on Programming Languages},
+  volume    = {2},
+  series = {POPL '18},
+  pages     = {66:1--66:34},
+  year      = {2018},
+  publisher = {ACM}}
+}
+
+@misc{rustc-unsound,
+ author = {Ralf Jung},
+ howpublished = {\url{http://github.com/rust-lang/rust/issues/28728}},
+ title = {{LLVM} loop optimization can make safe programs crash \#28728},
+ note = {Accessed: 2018-09-27},
+ year = {2018}
+}
+
+@misc{llvm-spectre,
+author = {Carruth, Chandler},
+ howpublished = {\url{http://reviews.llvm.org/rL336990}},
+ title = {[{SLH}] {I}ntroduce a new pass to do {S}peculative {L}oad {H}ardening to mitigate},
+ note = {Accessed: 2018-09-27},
+ year = {2018}
+}
+
+@misc{linux-spectre,
+ author = {Corbet, Jonathan},
+ howpublished = {\url{http://lwn.net/Articles/744287/}},
+ title = {{M}eltdown/{S}pectre mitigation for 4.15 and beyond},
+ note = {Accessed: 2018-09-27},
+ year = {2018}
+}
+
+@article{sbo,
+  author    = {Vladimir Kiriansky and
+               Carl Waldspurger},
+  title     = {{S}peculative {B}uffer {O}verflows: {A}ttacks and {D}efenses},
+  journal   = {CoRR},
+  volume    = {abs/1807.03757},
+  year      = {2018},
+  url       = {http://arxiv.org/abs/1807.03757},
+  archivePrefix = {arXiv},
+  eprint    = {1807.03757},
+}
+
+@inproceedings {arachne-2018,
+ author = {Henry Qin and Qian Li and Jacqueline Speiser and Peter Kraft and John Ousterhout},
+ title = {{A}rachne: {C}ore-{A}ware {T}hread {M}anagement},
+ booktitle = {Proceedings of the 13th USENIX Symposium on Operating Systems Design and Implementation},
+ series = {OSDI '2018},
+ year = {2018},
+ address = {Carlsbad, CA},
+ publisher = {{USENIX} Association},
+}
+
+@inproceedings{spectre-2018,
+ author = {Paul Kocher and Jann Horn and Anders Fogh and and Daniel Genkin and Daniel Gruss and Werner Haas and Mike Hamburg and Moritz Lipp and Stefan Mangard and Thomas Prescher and Michael Schwarz and Yuval Yarom},
+ title = {{Spectre Attacks: Exploiting Speculative Execution}},
+ booktitle = {Proceedings of the 40th IEEE Symposium on Security and Privacy},
+ series = {S\&P '19},
+ year = {2019}
 }

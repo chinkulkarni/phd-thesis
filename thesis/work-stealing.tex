@@ -1,0 +1,10 @@
+\begin{figure}[t]
+  \includegraphics[width=1.0\columnwidth]{figures/work-stealing.pdf}
+  \caption{Dispatch tasks on each core steal requests from the receive queue of
+  the core to their right whenever they have no requests in their own
+  receive queue. As a result, work from
+  overloaded cores get redistributed without generating high contention. Here,
+  core 1's in-progress tasks were induced by requests stolen from
+  core 2's queue.}
+  \label{fig:work-stealing}
+\end{figure}

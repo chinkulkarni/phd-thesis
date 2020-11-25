@@ -1,0 +1,10 @@
+\begin{figure}[t]
+\centering
+\includegraphics[width=1.0\columnwidth]{figures/sandstorm-tree-traversal.pdf}
+\caption{Tree traversal using \texttt{get()} operations over a key-value
+	store. Each step requires a lookup at the
+	storage layer, which is latency-bound and expensive for deep traversals.
+  If multi-tenant stores could be safely extended this function could avoid
+  remote access stalls and request processing costs.}
+\label{fig:kv-tree-traversal}
+\end{figure}
