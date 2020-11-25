@@ -106,14 +106,21 @@ TRUE		= true
 ### then a change to that file would not cause typesetting to be done
 ### on the next "make" command!
 
-PDFFILES	= figures/ramcloud-cluster.pdf		\
-		  figures/ramcloud-index.pdf		\
-		  graphs/ramcloud-colocation.pdf	\
-		  graphs/index-motivation.pdf		\
-		  graphs/migration-bottlenecks.pdf	\
-		  figures/rocksteady-overview.pdf	\
-		  figures/rocksteady-source.pdf		\
-		  figures/rocksteady-target.pdf
+PDFFILES	= figures/ramcloud-cluster.pdf				\
+		  figures/ramcloud-index.pdf				\
+		  graphs/ramcloud-colocation.pdf			\
+		  graphs/index-motivation.pdf				\
+		  graphs/migration-bottlenecks.pdf			\
+		  figures/rocksteady-overview.pdf			\
+		  figures/rocksteady-source.pdf				\
+		  figures/rocksteady-target.pdf				\
+		  graphs/rocksteady-throughput.pdf			\
+		  graphs/rocksteady-latency.pdf				\
+		  graphs/running-dispatch-worker.pdf			\
+		  graphs/priopull-skew.pdf				\
+		  graphs/running-latency-only-priority.pdf		\
+		  graphs/running-dispatch-worker-only-priority.pdf	\
+		  graphs/rocksteady-scalability.pdf
 
 FIGFILES	= ramcloud-cluster.tex		\
 		  ramcloud-index.tex		\
@@ -122,7 +129,14 @@ FIGFILES	= ramcloud-cluster.tex		\
 		  migration-bottlenecks.tex	\
 		  rocksteady-overview.tex	\
 		  rocksteady-source.tex		\
-		  rocksteady-target.tex
+		  rocksteady-target.tex		\
+		  rocksteady-throughput.tex	\
+		  rocksteady-latency.tex	\
+		  rocksteady-dispatch.tex	\
+		  priopull-skew.tex		\
+		  only-priority.tex		\
+		  only-priority-dispatch.tex	\
+		  rocksteady-scalability.tex
 
 STYFILES	= amssymb.sty			\
 		  amssymbols.sty		\
@@ -141,7 +155,11 @@ TEXFILES        = abstract.tex			\
 		  rocksteady.tex		\
 		  rocksteady-intro.tex		\
 		  rocksteady-motivation.tex	\
-		  rocksteady-design.tex
+		  rocksteady-design.tex		\
+		  rocksteady-evaluation.tex	\
+		  rocksteady-discussion.tex	\
+		  rocksteady-related.tex	\
+		  rocksteady-conclusion.tex
 
 THESIS		= chinmay-thesis
 
