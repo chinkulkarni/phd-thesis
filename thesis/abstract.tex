@@ -1,0 +1,62 @@
+The last decade of computer systems research has yielded efficient
+kernel-bypass stores with throughput and access latency thousands
+of times better than conventional stores.
+%
+These gains come from careful attention to detail in request processing,
+so these systems often start with simple and stripped-down designs to
+achieve their performance goals.
+%
+Hence, they trade off
+features that
+would make them more practical and cost effective at cloud scale,
+such as load (re)distribution, multi-tenancy, and
+expressive data models.
+
+This thesis demonstrates that this trade off is unnecessary.
+It presents mechanisms for
+reconfiguration, multi-tenancy and expressive data
+models that
+would make these systems more practical and
+efficient at cloud scale while preserving their performance
+benefits.
+
+\emph{Rocksteady}
+is a live migration technique for scale-out
+in-memory key-value stores.
+%
+It balances three competing goals: it
+migrates data quickly, it minimizes response time impact, and it
+allows arbitrary, fine-grained splits.
+%
+Rocksteady allows a key-value store to defer all repartitioning work
+until the moment of migration, giving it precise and timely control for
+load balancing.
+
+\emph{Shadowfax} is
+a system that
+allows distributed key-value stores to
+transparently span DRAM, SSDs, and cloud blob storage while serving
+130~Mops/s/VM over commodity Azure VMs using conventional Linux TCP.
+%
+Beyond
+high performance, Shadowfax uses a unique approach to distributed
+reconfiguration that avoids any server-side key ownership checks
+or cross-core coordination both during normal operation and migration.
+
+\emph{Splinter} is a system that
+allows clients
+to extend low-latency key-value stores by migrating (pushing) code to them.
+%
+Splinter is designed for
+modern multi-tenant data centers; it allows mutually distrusting tenants to write
+their own fine-grained extensions and push
+them to the store at runtime.
+%
+The core of
+Splinter's design relies on type- and memory-safe
+extension code to avoid conventional hardware isolation costs.
+%
+This
+still allows for bare-metal execution, avoids data copying across trust
+boundaries, and makes granular storage functions that perform less than
+a microsecond of compute practical.

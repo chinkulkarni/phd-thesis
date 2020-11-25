@@ -1,0 +1,11 @@
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.8\columnwidth]{figures/ramcloud-cluster.pdf}
+\caption{The RAMCloud architecture. Clients issue remote operations
+  to RAMCloud storage servers. Each
+  server contains a master and a backup. The master component exports the DRAM of
+  the server as a large key-value store. The backup accepts updates from other
+  masters and records state on disk used for recovering crashed masters. A
+  central coordinator manages the server pool and maps data to masters.}
+\label{fig:ramcloud-cluster}
+\end{figure}
