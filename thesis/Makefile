@@ -125,7 +125,17 @@ PDFFILES	= figures/ramcloud-cluster.pdf				\
 		  graphs/simulator.pdf					\
 		  figures/splinter-arch.pdf				\
 		  figures/tao-extension.pdf				\
-		  figures/work-stealing.pdf
+		  figures/work-stealing.pdf				\
+		  graphs/ycsb-open.pdf					\
+		  graphs/server-scalability.pdf				\
+		  graphs/tenant-scalability.pdf				\
+		  graphs/tenant-skew.pdf				\
+		  graphs/long-cooperative.pdf				\
+		  graphs/uncooperative.pdf				\
+		  graphs/aggregate.pdf					\
+		  graphs/aggregate-sum-throughput.pdf			\
+		  graphs/aggregate-mul-throughput.pdf			\
+		  graphs/tao.pdf
 
 FIGFILES	= ramcloud-cluster.tex		\
 		  ramcloud-index.tex		\
@@ -146,7 +156,17 @@ FIGFILES	= ramcloud-cluster.tex		\
 		  simulator.tex			\
 		  splinter-arch.tex		\
 		  tao-extension.tex		\
-		  work-stealing.tex
+		  work-stealing.tex		\
+		  ycsb-open.tex			\
+		  server-scalability.tex	\
+		  tenant-scalability.tex	\
+		  tenant-skew.tex		\
+		  long-cooperative.tex		\
+		  uncooperative.tex		\
+		  aggregate.tex			\
+		  aggregate-sum.tex		\
+		  aggregate-mul.tex		\
+		  tao.tex
 
 STYFILES	= amssymb.sty			\
 		  amssymbols.sty		\
@@ -173,7 +193,11 @@ TEXFILES        = abstract.tex			\
 		  splinter.tex			\
 		  splinter-introduction.tex	\
 		  splinter-motivation.tex	\
-		  splinter-design.tex
+		  splinter-design.tex		\
+		  splinter-implementation.tex	\
+		  splinter-evaluation.tex	\
+		  splinter-related.tex		\
+		  splinter-conclusion.tex
 
 THESIS		= chinmay-thesis
 

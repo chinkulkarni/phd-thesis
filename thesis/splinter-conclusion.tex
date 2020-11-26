@@ -1,0 +1,19 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+In-memory storage can significantly accelerate
+  data-intensive applications, including those that need fine-grained and
+  real-time access to data.
+However, as Dennard scaling ends, future cloud storage must not only be faster
+  but also more efficient.
+Splinter shows that soon legacy hardware isolation techniques will
+  limit resource provisioning granularity in the cloud, but it also provides a
+  way forward.
+Systems must evolve to support granular, low-overhead shipping of compute to
+    storage, and lightweight isolation between small compute tasks.
+Splinter works toward that evolution by discarding hardware isolation in
+  favor of static safety checks.
+As a result, it supports thousands of tenants that can all access data in tens of
+  microseconds while customizing storage operations to their needs and while
+  performing millions of remote operations on modern multicore machines.
+

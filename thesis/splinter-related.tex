@@ -1,0 +1,218 @@
+\section{Related Work}
+\label{sec:related}
+
+Shipping computation to data and isolating untrusted code are well-studied, and
+Splinter builds on prior work.
+However, prior work does not address multi-tenancy at Splinter's granularity and
+number of tenants; further, no work addresses
+these issues with its throughput and latency goals, which are far
+beyond most cloud storage systems.
+
+\textbf{Low-latency RDMA-based Storage Systems.}
+%
+Low-latency, high-throughput key-value stores are now thousands of times faster
+  than conventional cloud storage by exploiting RDMA, kernel-bypass, and
+  DRAM~\cite{farm-2014,farm-txns,herd,billions,mica,ramcloud}.
+These systems are well-understood for small, regular workloads, but their
+  simple (get/put, read/write) interfaces make them easy to optimize internally
+  at the expense of application efficiency, since they
+  force clients to make many round trips to storage and to compute locally~\cite{deb-farm}.
+%
+RDMA lowers CPU overhead for transmit, but it cannot make up for the
+  fundamental inefficiency of moving large amounts of data over the wire;
+  receivers must still perform the same computation
+  on the data that a server could have.
+Splinter eliminates this waste, while still using efficient kernel-bypass networking.
+%
+At 40~Gbps a Splinter store is never network bound, so combining Splinter's
+  approach with (one- or two-sided) RDMA verbs could provide a benefit by freeing up
+  additional compute on store servers.
+
+\subsection{Pushing Computation to Storage}
+
+MapReduce~\cite{mapreduce} and Spark~\cite{spark} ship code to data
+sets, though latency is not a concern.  Even when compute is shipped to a storage
+(HDFS~\cite{hdfs}) node, data is still copied via interprocess
+communication.  Untrusted extensions, like those in Splinter, could
+eliminate these overheads.
+
+%Active storage pushed compute to hard disks~\cite{active-storage}, and
+%solid-state drives' high bandwidth can support complex code at drive
+%controllers~\cite{yoursql}. Splinter is similar; storage servers are internally
+%parallel and facilitate computation.
+%Efforts to push compute into
+%memory~\cite{active-pages} have been renewed with 3D stacked memory and compute
+%at memory controllers~\cite{hbc}. Splinter eliminates network delays but leaves
+%compute and DRAM decoupled inside each host, though extensions may be amenable
+%to such hardware.
+
+Some distributed systems and frameworks support composing internal storage
+abstractions to synthesize new
+services~\cite{corfu,tango,istore,sdds,boxwood,malacology}.
+Malacology~\cite{malacology} claims storage extensions have been popular
+in the Ceph distributed file system, showing that extensions are useful to
+developers. In these systems, extensions are trusted, so they don't work for
+cloud storage; Splinter is also focused on tight integration of fine-grained
+computation and storage rather than on coarse composition of software services.
+Comet~\cite{comet} embedded sandboxed Lua extensions into a decentralized hash
+table to allow application-specific extensions to get/put behavior.
+Lua's entry/exit costs are low; it is unclear how the performance of its
+just-in-time (JIT) compiled runtime would compare to Splinter.
+
+\textbf{SQL.}
+%
+SQL may be the most widely used approach to ship computation to data,
+and it also supports use as a stored procedure language~\cite{tsql,plsql}.
+In-memory databases
+have placed pressure on performance, resulting
+in JIT compilation for SQL~\cite{hekaton-compile,hyper-llvm}. With JIT,
+queries run fast, and calls
+back-and-forth between the database and user logic are inexpensive. SQL is type
+safe, so it is also easy to isolate. SQL's main
+drawback is that it is declarative. Often, this is a benefit,
+since it can use runtime information for optimization, but this also
+limits its generality. Implementing new
+functionality, new operators, or complex algorithms in SQL is difficult and
+inefficient.
+%
+Some have extended SQL for specific domains, like graph
+processing~\cite{neo4j}, scientific computing~\cite{gmm,scidb} and
+simulation~\cite{simsql}, showing that SQL by itself is insufficient for many domains.
+
+\textbf{Native-code Extensions.}
+%
+The popular
+Redis~\cite{redis} in-memory store supports native extensions. In
+FaRM~\cite{farm-2014,farm-txns}, an RDMA-based in-memory store, applications are written as
+native, storage-embedded functions that are statically compiled into the
+server.  These systems don't allow extensions to be loaded at runtime, and
+application code is trusted so it does not work for multi-tenant cloud storage.
+Similarly, H-Store~\cite{hstore}, VoltDB~\cite{voltdb}, and
+Hazelcast~\cite{hazelcast} are in-memory stores that support Java-based
+procedures, though none of them provide multi-tenancy.
+
+\subsection{Fault Isolation}
+\label{sec:sfi}
+
+Software-fault isolation (SFI) sandboxes untrusted code within a
+process (or OS kernel~\cite{lcds,vino,nooks}) with low control transfer costs~\cite{wedge,vx32,pnacl,sfi-cisc,nacl}.
+Both hardware isolation~\cite{write-protect-db} and SFI~\cite{efficient-sfi}
+were applied to Postgres~\cite{postgres}, which pioneered
+database extensions~\cite{postgres-extensions}.  SFI still requires protected
+data to be copied in/out of extensions, since it relies on hardware
+paging or address masking that can only restrict access to contiguous memory
+regions.
+%So, SFI breaks down on operations like sampling or matrix operations
+%that can access millions of records.
+
+%%Untrusted kernel extensions and kernel decomposition: jitk, SPIN, Nooks.
+%%  Major difference: generally relatively few protection domains, so less
+%%  focus on switching between many domains. e.g. some current efforts rely on
+%%  multicores (Dekker, NFV frameworks with untrusted VFs).
+%Many works break OS kernels into untrusted modules or isolate extensions using
+%new system call interfaces~\cite{mach,exokernel,l3},
+%SFI~\cite{vino,nooks,lcds}, JIT-based runtimes~\cite{jitk}, or type-safe
+%languages~\cite{spin,singularity}.
+%%SFI approaches rely on optimized RPC-like inter-module messaging.
+%Since SFI requires expensive copying when modules share data, some approaches
+%give up on isolating malicious extensions and allow extensions to have full
+%read-only access to all kernel state~\cite{nooks}.  This weak isolation doesn't
+%work in the cloud, and it still requires frequent, slow page table switching.
+%Isolated modules can be pinned to cores to eliminate this
+%switching~\cite{lcds}, but this doesn't work in cloud storage where thousands
+%of tenants share a small set of cores.
+
+%When large regions of data must be transferred or shared between modules, they
+%rely on the fact that OS structures tend to be allocated in units that match
+%the hardware paging unit.  \S\ref{sec:preliminary} shows changing address
+%spaces is prohibitive for a low-latency storage system.
+
+Language-level approaches to kernel extension~\cite{spin,singularity} closely
+match Splinter's design and goals. SPIN let language-isolated extensions run
+as part of the kernel. It eliminated runtime overheads (aside from garbage
+collection), since extensions were compiled; it eliminated control transfer
+overheads, since it didn't require page table switching; and it eliminated
+copying between protection domains, since type-safe pointers worked as
+capabilities.
+Like Splinter, where tenants must write Rust code, a
+key downside of SPIN was that extensions had
+to be written in Modula-3, not C, so legacy code couldn't be used.
+%
+Java also ``sandboxed'' applets using type-safety and specialized class
+loaders, which supported inexpensive control transfer and data access between
+domains~\cite{extensible-java}.
+%Its design was complicated by backward
+%compatibility issues that wouldn't hamper Splinter, but its model is a helpful
+%guide for Splinter.
+
+Using Rust for low-cost, zero-copy isolation has been used for inexpensive
+  software fault isolation both generally~\cite{rust-hotos-2016} and for
+  network packet processing pipelines~\cite{netbricks-2016}.
+Splinter builds on these ideas, bringing them to storage and moving beyond
+  static domains to a runtime extensible service.
+Tock~\cite{tockos-2017} is an embedded OS that decomposes its kernel into
+  untrusted \textsl{capsules} by exploiting Rust's safety. Tock's capsules
+  are similar to Splinter's extensions, but they don't protect against denial of
+  service (infinite loops) and capsules are static -- they can't be added to a running kernel.
+These also differ from Splinter in that they assume a small number of trust
+  domains; they are targeted at software decomposition.
+Splinter targets dense multi-tenancy with no static
+  bound on the number of trust domains.
+
+%Language-isolated kernel extensions had significant research impact but less
+%impact on commodity kernels, which are still monolithic with trusted
+%extensions.  There are three reasons why these ideas make more sense for cloud
+%storage.  First, kernel extensions required using a new, type-safe language;
+%cloud developers already use type-safe languages that they can employ. Second,
+%people resist decomposing software for hard-to-quantify security benefits, but
+%cloud developers already decompose applications into stateless units for
+%fault-tolerance and scaling; extensions require little extra work.  Third,
+%kernel extensions require using complex, low-level abstractions; here,
+%developers use an interface that is near identical to what a less efficient
+%client-side implementation would use.
+
+% Scale and Performance in the Denali Isolation Kernel
+% Andrew Whitaker, Marianne Shaw, and Steven D. Gribble
+% University of Washington
+
+% Implementing Multiple Protection Domains in Java
+% Chris Hawblitzel, Chi-Chao Chang
+% Grzegorz Czajkowski, Deyu Hu, and Thorsten von Eicken
+% Cornell University
+
+%XXX Grappa as an alternative?
+
+% N. Watkins, C. Maltzahn, S. Brandt, and A. Manzanares. DataMods: Programmable
+% File System Services. In Proceed- ings of the 6th Workshop on Parallel Data
+% Storage, PDSW ’12, Salt Lake City, Utah, November 2012.
+% 
+% Software defined storage - M. Carlson, A. Yoder, L. Schoeb, D. Deel, C. Pratt,
+% C. Li- onetti, and D. Voigt. Software Defined Storage. SNIA Whitepaper, January
+% 2015.
+% 
+% Malacology: A Programmable Storage System Michael A. Sevilla, Noah Watkins, Ivo
+% Jimenez, Peter Alvaro, Shel Finkelstein, Jeff LeFevre, Carlos Maltzahn
+% 
+% E. Riedel, G. A. Gibson, and C. Faloutsos. Active Storage For Large-Scale Data
+% Mining and Multimedia. In Proceedings of the 24th international Conference on
+% Very Large Databases, VLDB ’98, New York, NY, July 1998.
+
+%\subsection{Distributed DBs}
+%
+%{\color{red}
+%\begin{itemize}
+%\item
+%H-Store
+%\item
+%Spanner
+%\end{itemize}
+%}
+%
+%
+%{\color{red} Need a section on AWS Lambda, Azure Functions, OpenWhisk.}
+
+
+% XXX Missing related work
+% XXX AWS Lambda, Azure Functions, OpenWhisk
+% XXX H-Store
+% XXX Spanner? Cassandra CQL?

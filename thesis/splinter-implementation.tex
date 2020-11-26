@@ -1,0 +1,20 @@
+\section{Implementation}
+\label{sec:implementation}
+
+The Splinter store is implemented in 7,500 lines of Rust. It uses the
+  NetBricks network function virtualization framework~\cite{netbricks-2016} as a
+  wrapper over the DPDK~\cite{dpdk} packet processing framework.
+Splinter also includes 1,100 lines of Rust that
+  provide the store interface to extensions. Extensions import it and
+  compile against it.
+The store also imports the interface, since it defines how the store interacts
+  with extensions to create a new generator for an invocation.
+The Splinter codebase is open sourced and freely available on github at
+the following link:
+\url{https://github.com/utah-scs/splinter}.
+
+The store needn't be written in Rust, but doing so has advantages.
+It prevents data races and segmentation faults within the store, but
+  it also lets the store use Rust's type system and lifetimes to ensure that
+  mistakes aren't made with lifetimes of objects and references
+  handed across trust boundaries, which an adversary could exploit.
