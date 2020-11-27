@@ -1,0 +1,9 @@
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\columnwidth]{figures/server.pdf}
+\caption{Each server thread receives batches of requests from sessions
+    and processes them via a shared, per-machine \faster instance.
+    Results are returned over the network by the same
+    thread, avoiding cross-thread coordination.}
+\label{fig:server}
+\end{figure}

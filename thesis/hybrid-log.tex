@@ -1,0 +1,11 @@
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/hybrid-log.pdf}
+\vspace{-5ex}
+\caption{\faster's \hlog allocator spans memory and local SSD.
+    The portion in memory contains a mutable region that acts as a
+    cache and a read-only region.
+    \faster's hash table points to a reverse linked list of
+    records on the \hlog.}
+\label{fig:hlog}
+\end{figure}

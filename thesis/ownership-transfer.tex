@@ -1,0 +1,10 @@
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/ownership-transfer.pdf}
+\caption{Ownership transfer. A view change is asynchronously propagated
+  within a server, defining a cut across server threads. Then, the server
+  extends this into a global cut covering all its connected client sessions.
+  This defines a global view boundary among all operations while
+  avoiding cross-core coordination both at servers \emph{and} clients.}
+\label{fig:ownership}
+\end{figure}

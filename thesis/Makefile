@@ -135,7 +135,16 @@ PDFFILES	= figures/ramcloud-cluster.pdf				\
 		  graphs/aggregate.pdf					\
 		  graphs/aggregate-sum-throughput.pdf			\
 		  graphs/aggregate-mul-throughput.pdf			\
-		  graphs/tao.pdf
+		  graphs/tao.pdf					\
+		  figures/pipeline.pdf					\
+		  figures/hybrid-log.pdf				\
+		  figures/global-cut.pdf				\
+		  figures/server.pdf					\
+		  figures/client.pdf					\
+		  figures/ownership-transfer.pdf			\
+		  figures/source.pdf					\
+		  figures/target.pdf					\
+		  figures/indirection.pdf
 
 FIGFILES	= ramcloud-cluster.tex		\
 		  ramcloud-index.tex		\
@@ -166,7 +175,16 @@ FIGFILES	= ramcloud-cluster.tex		\
 		  aggregate.tex			\
 		  aggregate-sum.tex		\
 		  aggregate-mul.tex		\
-		  tao.tex
+		  tao.tex			\
+		  pipeline.tex			\
+		  hybrid-log.tex		\
+		  global-cut.tex		\
+		  server.tex			\
+		  client.tex			\
+		  ownership-transfer.tex	\
+		  source.tex			\
+		  target.tex			\
+		  indirection.tex
 
 STYFILES	= amssymb.sty			\
 		  amssymbols.sty		\
@@ -197,7 +215,12 @@ TEXFILES        = abstract.tex			\
 		  splinter-implementation.tex	\
 		  splinter-evaluation.tex	\
 		  splinter-related.tex		\
-		  splinter-conclusion.tex
+		  splinter-conclusion.tex	\
+		  shadowfax.tex			\
+		  shadowfax-introduction.tex	\
+		  shadowfax-faster.tex		\
+		  shadowfax-design.tex		\
+		  shadowfax-future.tex
 
 THESIS		= chinmay-thesis
 

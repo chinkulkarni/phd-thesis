@@ -1,0 +1,54 @@
+\subsection{Fault Tolerance}
+\label{sec:fault-tolerance}
+
+Migrations in Shadowfax can be easily made fault tolerant.
+%
+% In addition to marking their part of the migration completed at the
+% metadata store
+During their
+respective \texttt{Complete} phases in the protocol,
+the source and target would first have to take a checkpoint before
+setting their flags at the metadata store.
+%
+This would make the migration durable;
+% , and the temporary dependency
+% between the source and target at the metadata store is garbage collected.
+%
+if either machine crashes hereafter, it can be independently recovered
+from a checkpoint containing the effects of the migration.
+
+If either server crashes during, recovery must involve both, which is why the
+metadata store tracks the dependency between them.
+%
+This is because of early ownership transfer; during migration, the
+target services operations on the migrating ranges, but many records belonging
+to it may still be on the source.
+%
+When recovering a server, if Shadowfax finds a migration dependency
+involving the server without both completion flags set, it cancels the
+migration by setting a cancellation flag in the metadata server.
+%
+Then, it transfers ownership of hash ranges back to the source
+(incrementing the source and target's view), restores both machines using
+their pre-migration checkpoints, and recovers requests on hash
+ranges that were issued during migration at the source.
+
+This cancellation procedure ensures migration is deadlock-free.
+%
+If either server fails to make progress through the protocol
+in a timely manner, the migration can always be cancelled by any party, and
+both servers can be rolled back.
+%
+No server can stall migration completion indefinitely.
+
+A full description and evaluation of these mechanisms is beyond the scope of
+this paper, and we leave it to future work.
+
+%
+%As with ownership transfer, it creates a global cut across client
+%sessions, indicating which operations clients should retransmit
+%to servers after a crash.
+%
+%This client-assisted recovery eliminates the need for write-ahead-logging at
+%servers, which would introduce a serial bottleneck.
+%
