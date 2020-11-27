@@ -1,0 +1,76 @@
+\section{Related Work}
+\label{sec:related}
+
+Shadowfax builds on several areas of recent
+research.
+
+\noindent
+{\bf Epochs and Cuts.}
+There are many schemes for synchronization and memory protection in lock-free
+concurrent data structures including hazard pointers~\cite{hazard},
+read-copy-update~\cite{rcu} and epoch-based schemes~\cite{epochs,epochs-phd}.
+Like Shadowfax, several other
+systems~\cite{bwtree,deuteronomy,deuteronomy-ranges,hekaton-indexing} use epochs for this purpose.
+
+% Notably, many of these systems combine epoch protection with copy-on-write or
+% log-structured updates, which adds overhead due to allocation and tail-of-log
+% contention. Other systems use update-in-place with latching~\cite{masstree} to avoid this overhead, but target main memory. Shadowfax
+% uses update-in-place for values in memory, and switches to copy-on-write via a lock-free
+% hash index when values are stable; its unique approach to epochs is key to avoiding overhead
+% when determining which values require copy-on-write.
+
+Shadowfax's use of epochs resembles Silo's, a (single-node)
+in-memory store~\cite{silo}. Like in Silo, Shadowfax's epochs avoid strong
+ordering among requests except on coarse boundaries, improving scalability.
+Silo also uses epochs to improve write-ahead logging
+scalability~\cite{silor}.  Shadowfax extends these epochs back to clients by
+asynchronously choosing points in server execution and correlating these back
+to per-client sequence numbers, effectively pushing the overhead of logging out
+of servers altogether. Similarly, Scalog's persistence-before-ordering approach uses
+global cuts that define and order shards of operations on different
+machines~\cite{scalog}; Shadowfax uses similar cuts across threads and client
+session buffers to define an order to enforce boundaries among operations.
+
+\noindent
+{\bf High-throughput Networked Stores.}
+Some in-memory stores exploit kernel-bypass networking or RDMA and optimize
+for multicore. Many of these focus on throughput but do not provide
+scale out~\cite{pilaf,mica,herd}, both of which
+can slow normal-case request processing. RAMCloud focuses on low-latency
+and has migration, but its throughput is two
+orders of magnitude less than Shadowfax~\cite{ramcloud,ramcloud-recovery}.
+
+% Anna~\cite{Wu:2019:ATC:3311880.3322438} uses selective key replication with
+% a per-thread shared nothing design, but relies on eventual consistency with
+% lazy gossip.
+
+FaRM~\cite{farm-2014,farm-txns} creates large clusters of distributed memory where
+clients primarily use one-sided RDMA reads to construct data structures like
+hash tables. FaRM supports scale out and crash recovery by relying on
+whole-machine battery backup and in-memory replication.  FaRM's reported
+per-core throughput is about 300,000 reads/s/core, compared to Shadowfax's
+1.5~million read-modify-writes/s/core, though there are differences in
+experimental set up. For example, FaRM doesn't report numbers for
+read-modify-write or write-only workloads which are significantly more
+expensive in FaRM, since they involve server CPU, require replication, and
+cannot be done with one-sided RDMA operations.
+
+% Elasticity
+
+\noindent
+{\bf Elasticity.}
+Scale out and migration are key features in shared,
+replicated stores~\cite{dynamo,cassandra,redis}.  High-throughput, multicore
+stores complicate this because normal-case request processing is highly
+optimized and migration competes for CPU.  Some stores rely on
+in-memory replicas for fast load redistribution~\cite{farm-txns,drtmb};
+this is expensive due to DRAM's high cost and
+replication overhead.
+% , so this does not work for Shadowfax.
+
+Squall~\cite{squall} migrates data in the H-Store~\cite{hstore}
+database; it exploits skew via on-demand record pulls from
+source to target with colder data moved in the background.
+Rocksteady~\cite{rocksteady} uses this idea in RAMCloud along with a
+deferred replication scheme that avoids write-ahead logging for
+migrated data.

@@ -144,7 +144,17 @@ PDFFILES	= figures/ramcloud-cluster.pdf				\
 		  figures/ownership-transfer.pdf			\
 		  figures/source.pdf					\
 		  figures/target.pdf					\
-		  figures/indirection.pdf
+		  figures/indirection.pdf				\
+		  graphs/thread-scalability-tcp.pdf			\
+		  graphs/thread-scalability-comparison.pdf		\
+		  graphs/comparison.pdf					\
+		  graphs/comparison-split.pdf				\
+		  graphs/comparison-pending.pdf				\
+		  graphs/migration-size.pdf				\
+		  graphs/compaction.pdf					\
+		  graphs/sampling.pdf					\
+		  graphs/views.pdf					\
+		  graphs/cloudLab.pdf
 
 FIGFILES	= ramcloud-cluster.tex		\
 		  ramcloud-index.tex		\
@@ -184,7 +194,17 @@ FIGFILES	= ramcloud-cluster.tex		\
 		  ownership-transfer.tex	\
 		  source.tex			\
 		  target.tex			\
-		  indirection.tex
+		  indirection.tex		\
+		  shadowfax-scalability.tex	\
+		  seastar-scalability.tex	\
+		  comparison.tex		\
+		  comparison-split.tex		\
+		  comparison-pending.tex	\
+		  migration-size.tex		\
+		  compaction.tex		\
+		  sampling.tex			\
+		  views.tex			\
+		  cloudLab.tex
 
 STYFILES	= amssymb.sty			\
 		  amssymbols.sty		\
@@ -220,7 +240,10 @@ TEXFILES        = abstract.tex			\
 		  shadowfax-introduction.tex	\
 		  shadowfax-faster.tex		\
 		  shadowfax-design.tex		\
-		  shadowfax-future.tex
+		  shadowfax-future.tex		\
+		  shadowfax-evaluation.tex	\
+		  shadowfax-related.tex		\
+		  shadowfax-conclusion.tex
 
 THESIS		= chinmay-thesis
 
