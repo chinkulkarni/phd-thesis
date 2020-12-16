@@ -2,19 +2,20 @@ The last decade of computer systems research has yielded efficient
 kernel-bypass stores with throughput and access latency thousands
 of times better than conventional stores.
 %
-These gains come from careful attention to detail in request processing,
-so these systems often start with simple and stripped-down designs to
+These gains come from careful attention to detail in dispatch and
+request processing,
+so these systems often start with stripped-down designs to
 achieve their performance goals.
 %
-Hence, they trade off
+Hence, these systems trade-off
 features that
-would make them more practical and cost effective at cloud scale,
+would make them more practical and cost-effective at cloud scale,
 such as load (re)distribution, multi-tenancy, and
 expressive data models.
 
-This thesis demonstrates that this trade off is unnecessary.
+This thesis demonstrates that this trade-off is unnecessary.
 It presents mechanisms for
-reconfiguration, multi-tenancy and expressive data
+reconfiguration, multi-tenancy, and expressive data
 models that
 would make these systems more practical and
 efficient at cloud scale while preserving their performance
@@ -40,16 +41,15 @@ transparently span DRAM, SSDs, and cloud blob storage while serving
 %
 Beyond
 high performance, Shadowfax uses a unique approach to distributed
-reconfiguration that avoids any server-side key ownership checks
-or cross-core coordination both during normal operation and migration.
+reconfiguration that avoids any server-side record ownership checks
+or cross-core coordination both during regular operation and migration.
 
 \emph{Splinter} is a system that
 allows clients
 to extend low-latency key-value stores by migrating (pushing) code to them.
 %
-Splinter is designed for
-modern multi-tenant data centers; it allows mutually distrusting tenants to write
-their own fine-grained extensions and push
+Tenants can write
+fine-grained extensions and push
 them to the store at runtime.
 %
 The core of
@@ -57,6 +57,7 @@ Splinter's design relies on type- and memory-safe
 extension code to avoid conventional hardware isolation costs.
 %
 This
-still allows for bare-metal execution, avoids data copying across trust
-boundaries, and makes granular storage functions that perform less than
-a microsecond of compute practical.
+still allows for bare-metal execution, avoids data copying between
+extensions and the store, and makes granular storage functions that
+execute for less than
+a microsecond practical.
