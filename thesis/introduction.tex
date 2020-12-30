@@ -211,13 +211,10 @@ a factor of 2.
 
 \vspace{8pt}
 
-This thesis presents horizontal and vertical mechanisms for
-rapid low-impact reconfiguration, multi-tenancy and expressive data
-models that
-would help make low-latency storage systems more practical and
-efficient at cloud scale.
-%
-It is structured into three key pieces:
+This thesis presents the following horizontal and vertical mechanisms
+for rapid low-impact reconfiguration, multi-tenancy, and expressive data
+models to make low-latency storage systems more practical and efficient
+at cloud-scale:
 
 \begin{enumerate}
 \item \textbf{Fast Data Migration:}
@@ -229,42 +226,44 @@ in-memory key-value stores.
 %
 It balances three competing goals: it
 migrates data quickly, it minimizes response time impact, and it
-allows arbitrary, fine-grained splits.
+allows arbitrary fine-grained splits.
 %
 Rocksteady allows a key-value store to defer all repartitioning work
 until the moment of migration, giving it precise and timely control for
 load balancing.
 
-\item \textbf{Low Cost Coordination:}
+\item \textbf{Low-Cost Coordination:}
 The second piece presents \emph{Shadowfax}~\cite{shadowfax},
 a system with horizontal and vertical mechanisms that
 allow distributed key-value stores to
-transparently span DRAM, SSDs, and cloud blob storage while serving
+span DRAM, SSDs, and cloud blob storage transparently while serving
 130~Mops/s/VM over commodity Azure VMs using conventional Linux TCP.
 %
 Beyond
 high single-VM performance, Shadowfax uses a unique approach to distributed
-reconfiguration that avoids any server-side key ownership checks
-or cross-core coordination both during normal operation and migration.
+reconfiguration that avoids server-side record ownership checks
+or cross-core coordination during regular operation and migration.
 
 \item \textbf{Extensibility and Multi-Tenancy:}
-The final piece presents \emph{Splinter}~\cite{splinter}, a system that
+The final piece presents a system called \emph{Splinter}~\cite{splinter}
+that
 provides clients with a vertical mechanism
 to extend low-latency key-value stores by migrating (pushing) code to them.
 %
-Splinter is designed for
-modern multi-tenant data centers; it allows mutually distrusting tenants to write
-their own fine-grained extensions and push
+Designed for
+modern multi-tenant data centers, Splinter allows
+tenants to write
+fine-grained extensions and push
 them to the store at runtime.
 %
 The core of
 Splinter's design relies on type- and memory-safe
 extension code to avoid conventional hardware isolation costs.
 %
-This
+Splinter's approach
 still allows for bare-metal execution, avoids data copying across trust
 boundaries, and makes granular storage functions that perform less than
-a microsecond of compute practical.
+a microsecond of computation practical.
 
 \end{enumerate}
 
@@ -273,73 +272,74 @@ a microsecond of compute practical.
 \emph{Rocksteady} is a live migration technique for scale-out
 in-memory key-value stores.
 %
-Built on top of RAMCloud~\cite{ramcloud}, Rocksteady’s key insight is to
+Built on top of RAMCloud~\cite{ramcloud}, Rocksteady’s insight is to
 leverage application skew to speed up data migration while minimizing
-the impact to performance.
+the impact on performance.
 %
 When migrating a partition from a source to a target, it first migrates
 ownership of the partition.
 %
 Doing so moves load on the partition from the source to the target, creating
-headroom on the source that can be used to migrate data.
+headroom on the source for migrating data.
 %
-To keep the partition online, the target pulls records from the source
-on-demand; since applications are skewed – most requests are for a small
-set of hot records – this on-demand process converges quickly.
+The target then pulls records from the source
+on-demand to keep the partition online.
+%
+This on-demand process quickly converges because of skew –
+most of the requests issued by an application are for a small set of hot
+records.
 
-To fully utilize created headroom, Rocksteady carefully schedules and
+To fully utilize the created headroom, Rocksteady carefully schedules and
 pipelines data migration on both the source and target.
 %
-Migration is
-broken up into tasks that work in parallel over RAMCloud’s hash table;
+Migration tasks work over RAMCloud’s hash table in parallel;
 doing so keeps the pre-fetcher happy, improving cache locality.
 %
 A shared-memory model allows these tasks to be scheduled on any core,
-allowing any idle compute on the source and target to be used for
-migration.
+allowing migration to use any idle resources on the source and target.
 %
 To further speed up migration, Rocksteady delays
-re-replication of migrated data at the target to until after migration
-has completed.
+replication of migrated data at the target until after migration.
 %
 Fault tolerance is guaranteed by maintaining a dependency
 between the source and target at RAMCloud’s coordinator (called lineage)
-during the migration, and recovering all data at the source if either
+during the migration and recovering all data at the source if either
 machine crashes.
 %
 Recovery must also include the target because of early
-ownership transfer; the target could have served and replicated writes
-on the partition since the migration began.
+ownership transfer; the target could have served writes
+to the partition since the migration began.
 %
 Putting all these parts
 together results in a protocol that migrates data 100x faster than the
 state-of-the-art while maintaining tail latencies 1000x lower.
 
-Overall, Rocksteady’s careful attention to ownership, scheduling, and
-fault tolerance allow it to quickly and safely migrate data with low
-impact to performance.
+Overall, Rocksteady's careful attention to ownership, scheduling, and
+fault tolerance helps it quickly and safely migrate data with
+low impact.
 %
 Experiments show that it can migrate at 758 MBps
 while maintaining tail latency below 250 microseconds; this is
-equivalent to migrating 256 GB of data in 6 minutes, allowing for quick
-scale-up and scale-down of a cluster.
+equivalent to migrating a server's worth of data in a matter of minutes,
+allowing for quick cluster reconfiguration.
 %
 Additionally, early ownership transfer and
 lineage help improve migration speed by 25\%.
 %
 These results have
-important implications on system design; fast storage systems can use
+significant implications on system design; fast storage systems can use
 Rocksteady as a mechanism to enable flexible, lazy partitioning of
 data.
 
 \section{Low Cost Coordination}
 
-\emph{Shadowfax} allows distributed key-value store to
-transparently span DRAM, SSDs, and cloud blob storage.
+\emph{Shadowfax} allows distributed key-value stores to
+span DRAM, SSDs, and cloud blob storage transparently.
 %
 Its unique approach to
-distributed reconfiguration avoids any cross-core coordination during
-normal operation and data migration both in its indexing and network interactions.
+distributed reconfiguration avoids cross-core coordination during
+regular operation and data migration both in its indexing and network
+interactions.
 %
 In contrast to totally-ordered or stop-the-world approaches used by most
 systems, cores in Shadowfax avoid stalling to synchronize with one another, even when
@@ -354,42 +354,44 @@ Shadowfax vertically extends asynchronous cuts from cores within one
 process~\cite{faster} to servers
 and clients in a cluster.
 %
-This helps coordinate server
+These cuts help coordinate server
 and client threads
 in Shadowfax's low-coordination data migration and
 reconfiguration protocol.
 
 In addition to reconfiguration, Shadowfax has mechanisms that help it
-achieve high throughput of 130~Mops/s/VM over
+achieve a throughput of 130~Mops/s/VM over
 commodity Azure VMs~\cite{azure}.
 %
-First, all requests from a client on one machine to Shadowfax are asynchronous with
-respect to one another all the way throughout Shadowfax's client- and
+First, all requests from a client on one machine to Shadowfax are
+completely asynchronous throughout Shadowfax's client-side and
 server-side network submission/completion paths and servers' indexing and
 (SSD and cloud storage) I/O paths.
 %
-This avoids all client- and server-side stalls due to head-of-line
-blocking, ensuring that clients can always continue to generate requests and
-servers can always continue to process them.
+This approach avoids all client- and server-side stalls due to head-of-line
+blocking, ensuring that clients can always generate
+requests, and
+servers can always process them.
 %
 Second, instead of partitioning data among cores to avoid synchronization on record
 accesses~\cite{hstore,voltdb,mica,seastar}, Shadowfax partitions network
-sessions across cores; its lock-free hash index and log-structured record heap
-are shared among all cores.
+sessions across cores and shares its lock-free hash index and log-structured
+record heap among them.
 %
 This risks contention when some records are hot and frequently
-mutated, but this is more than offset by the fact that no software-level
-inter-core request forwarding or routing is needed within server VMs.
+mutated, but this is more than offset by avoiding software-level
+inter-core request forwarding or routing within server VMs.
 
 Measurements show that Shadowfax can shift load in 17~s to improve system throughput by
 10~Mops/s
-with little disruption. Compared to the state-of-the-art, it has 8$\times{}$ better throughput
-  (than Seastar+memcached) and scales out 6$\times{}$ faster.
+with little disruption. Compared to the state-of-the-art, it has eight
+times better throughput
+  (than Seastar+memcached) and scales out six times faster.
 %
 When scaled to a small cluster, Shadowfax retains its high throughput to
-perform 400~Mops/s,
+perform 930~Mops/s,
 %
-which, to the best of our knowledge, is the highest
+which is the highest
 reported throughput for a distributed key-value store used for
 large-scale data ingestion and indexing.
 
@@ -401,7 +403,7 @@ to extend low-latency key-value stores by migrating (pushing) code to them.
 Splinter relies on a type- and memory-safe language for isolation.
 %
 Tenants push
-extensions – a tree traversal for example – written in the Rust
+extensions – a tree traversal, for example – written in the Rust
 programming language~\cite{rust} to the system at runtime.
 %
 Splinter installs
@@ -411,39 +413,41 @@ Once installed, an extension can
 be remotely invoked (executed) by the tenant in a
 single round-trip.
 %
-For applications such as tree traversals which would ordinarily require
-round-trips logarithmic in the size of the tree, splinter can
+For applications such as tree traversals that would ordinarily require
+round-trips logarithmic in the tree's size, Splinter can
 significantly improve both throughput and latency.
 
-In addition to lightweight isolation, splinter consists of multiple
-mechanisms to make pushing compute feasible.
+In addition to lightweight isolation, Splinter consists of multiple
+mechanisms to make pushing computation feasible.
 %
-Cross-core synchronization
-is minimized by maintaining \emph{tenant locality}; tenant requests are
-routed
-to preferred cores at the NIC~\cite{flow-director} itself, and cores
+It minimizes cross-core synchronization
+by maintaining \emph{tenant locality};
+%
+it routes tenants
+to preferred cores at the NIC~\cite{flow-director} itself.
+%
+Cores
 steal work from
-their neighbour to combat any resulting load imbalances.
+their neighbor to combat any resulting load imbalances.
 %
-Pushed code (an extension) is scheduled \emph{cooperatively}; extensions are
-expected to yield down to the storage layer frequently ensuring that
-long running extensions do not starve out short running ones.
+Splinter schedules pushed code (an extension) cooperatively; extensions
+periodically yield to the storage layer, ensuring that long-running
+extensions do not starve short running ones.
 %
 This
-approach is preferred over conventional multitasking using kthreads
-because preempting a kthread requires a context switch, making it too
+approach is preferred over conventional multitasking using threads
+because preempting a thread requires a context switch, making it too
 expensive for microsecond timescales.
 %
-Uncooperative extensions are
-identified and dealt with by a dedicated watchdog core.
+A dedicated watchdog core identifies and blocks uncooperative
+extensions.
 %
-Data copies are
-minimized by passing immutable references to extensions; the rust
-compiler statically verifies the lifetime and safety of these
-references.
+Splinter passes immutable references to extensions to minimize data
+copies; the rust compiler statically verifies these references' lifetime
+and safety.
 %
 With the help of these mechanisms, Splinter can isolate
-100’s of granular tenant extensions per core while serving millions of
+hundreds of granular tenant extensions per core while serving millions of
 operations per second with microsecond latencies.
 
 Overall, Splinter adds extensibility to fast kernel-bypass storage
@@ -451,19 +455,21 @@ systems, making it easier for applications to use them.
 %
 An 800 line Splinter extension implementing Facebook’s TAO graph
 model~\cite{tao-2013}
-can serve 2.8 million ops/s on 8 threads with an average latency of
+can serve 2.8 million ops/s on eight threads with an average latency of
 30 microseconds.
 %
-A significant fraction of TAO operations involve only a single
+A significant fraction of TAO involves only a single
 round-trip.
 %
 Implementing these on the client using normal lookups and
 implementing the remaining operations using the extension helps improve
 performance to 3.2 million ops/s at the same latency.
 %
-This means that an
+Therefore, an
 approach that combines normal lookups/updates with Splinter’s extensions
-is the best for performance; the normal lookups do not incur isolation
+is the best for performance.
+%
+The normal lookups do not incur isolation
 overhead (no matter how low), and the extensions reduce the number of
 round-trips.
 %
@@ -471,7 +477,6 @@ In comparison, FaRM’s~\cite{farm-2014} implementation of TAO performs
 6.3 million
 ops/s on 32 threads with an average latency of 41 microseconds.
 %
-This
-makes Splinter’s approach, which performs 0.4 million ops/s per thread,
-competitive with FaRM’s RDMA based approach, which performs 0.2 million
+Splinter’s approach, which performs 0.4 million ops/s per thread,
+is competitive with FaRM’s RDMA based approach, which performs 0.2 million
 ops/s per thread.
