@@ -5,19 +5,19 @@ RAMCloud~\cite{ramcloud} is a key-value store that keeps all data in
 DRAM at all times and is designed to scale across thousands of commodity data
 center servers. Each server can service millions of operations per
 second, but its focus is on low access latency.  End-to-end read and durable
-write operations take just 6~\us~and~15~\us
-respectively on our hardware (\S\ref{sec:eval}).
+write operations take just 6~\us~and~15~\us,
+respectively, on our hardware (\S\ref{sec:reval}).
 
 \input {ramcloud-cluster.tex}
 
 Each server (Figure~\ref{fig:ramcloud-cluster}) operates as a \emph{master},
 which manages RAMCloud objects in its DRAM and services client requests, and a
 \emph{backup}, which stores redundant copies of objects from other masters on
-local disk.  Each cluster has one quorum-replicated \emph{coordinator} that
+its local disk.  Each cluster has one quorum-replicated \emph{coordinator} that
 manages cluster membership and table-partition-to-master mappings~\cite{ongaro:raft}.
 
 RAMCloud only keeps one copy of each object in memory to avoid replication in
-expensive DRAM; redundant copies are logged to (remote) flash.  It provides
+DRAM, which is expensive; it logs redundant copies to (remote) flash.  It provides
 high availability with a fast distributed recovery that sprays the objects 
 previously hosted on
 a failed server across the cluster in
@@ -30,16 +30,16 @@ with high performance~\cite{ramcloud-lsm}.
 %\noindent
 %\textbf{Data Model.}
 RAMCloud's design and data model tightly intertwine with load balancing and migration.
-Foremost, RAMCloud is a simple variable-length key-value store; its key space
-is divided into unordered tables and tables can be broken into {\em tablets}
+Foremost, RAMCloud is a simple variable-length key-value store; its key-space
+is divided into unordered tables, and tables can be broken into {\em tablets}
 that reside on different servers.  Objects can be accessed by their primary (byte
-string) key, but ordered secondary indexes can also be constructed on top of
+string) key but ordered secondary indexes can also be constructed on top of
 tables~\cite{ramcloud-slik}. Like tables, secondary indexes can be split into
 {\em indexlets} to scale them across servers. Indexes contain primary key hashes
 rather than records, so tables and their indexes can be scaled independently
-and needn't be co-located (Figure~\ref{fig:index}). Clients can issue multi-read
+and need not be co-located (Figure~\ref{fig:index}). Clients can issue multi-read
 and multi-write requests that fetch or modify several objects on one server with
-a single request, and they can also issue externally consistent and serializable
+a single request. They can also issue externally consistent and serializable
 distributed transactions~\cite{ramcloud-rifl}.
 
 \input {ramcloud-index.tex}
@@ -73,7 +73,8 @@ distributed transactions~\cite{ramcloud-rifl}.
 \label{sec:why-balance}
 
 %K Why not consistent hashing?
-All scale-out stores need some way to distribute load. Most systems today use
+All scale-out stores need some way to distribute load across servers.
+Most systems today use
 some form of consistent
 hashing~\cite{chord,dynamo,cassandra}. Consistent hashing is simple,
 keeps the key-to-server mapping compact, supports reconfiguration, and
@@ -82,8 +83,9 @@ load spreading is also its drawback; even in-memory stores benefit
 significantly from exploiting access locality.
 
 In RAMCloud, for example, co-locating access-correlated keys benefits
-multiget/multiput operations, transactions, and range queries. Transactions can
-benefit greatly if all affected keys can be co-located, since synchronous, remote
+multi-get/multi-put operations, transactions, and range queries. Transactions can
+benefit significantly if all affected keys can be co-located since
+synchronous, remote
 coordination for two-phase commit~\cite{ramcloud-rifl,sinfonia} can be avoided.
 Multi-operations and range queries benefit in a more subtle but still important
 way. If all requested values live together on the same machine, a client can
@@ -96,41 +98,41 @@ induced on the cluster is significantly different.
 \input {ramcloud-colocation.tex}
 
 Figure~\ref{fig:colocation} explores this effect. It consists of a
-microbenchmark run with 7~servers and 14~client machines. Clients issue back-to-back
-multiget operations evenly across the cluster, each for 7~keys at a time. In
-the experiment, clients vary which keys they request in each multiget to vary
+microbenchmark run with seven~servers and 14~client machines. Clients issue back-to-back
+multi-get operations evenly across the cluster, each for seven~keys at a time. In
+the experiment, clients vary which keys they request in each multi-get to vary
 how many servers they must issue parallel requests to, but all servers still
 handle the same number of requests as each other.
-At Spread~1, all of the keys for a specific multiget come from one server. At
-Spread~2, 6~keys per multiget come from one server, and the
+At Spread~1, all of the keys for a specific multi-get come from one server. At
+Spread~2, 6~keys per multi-get come from one server, and the
 7\textsuperscript{th} key comes from another server. At Spread~7, each of the
-7~keys in the multiget is serviced by a different server.
+seven~keys in the multi-get is serviced by a different server.
 
 %RAMCloud uses a kernel-bypass networking stack and polls the network device
 %(NIC) registers, but each message that is received and dispatched to a worker
 %thread induces some load on each server process. When a RAMCloud cluster is
 %forced to dispatch 7 requests for 7 objects instead of 1 request for 7
 %objects, the total system throughput suffers.
-When multigets involve two servers rather than one, the cluster-wide throughput
+When multi-gets involve two servers rather than one, the cluster-wide throughput
 drops 23\% even though no resources have been removed from the cluster. The
 bottom half of the figure shows the reason.  Each server has a single {\em dispatch}
-core that polls the network device for incoming messages and hands off requests
+core that polls the network device for incoming messages and hands-off requests
 to idle {\em worker} cores.  With high locality, the cluster is only limited by
-how quickly worker cores can execute requests. When each multiget results in
+how quickly worker cores can execute requests. When each multi-get results in
 requests to two servers, the dispatch core load doubles and saturates, leaving
 the workers idle. The dotted line shows the throughput of a single server.
-When each multiget must fetch data from all 7~servers, the aggregate
-performance of the entire cluster barely outperforms a single machine.
+When each multi-get must fetch data from all seven~servers, the entire
+cluster's aggregate performance barely outperforms a single machine.
 
 Overall, the experiment shows that, even for small clusters, minimizing tablet
-splits and maximizing locality has a big benefit, in this case up to
+splits and maximizing locality has a significant benefit, in this case, up to
 4.3$\times$.  Our findings echo recent trends in scale-out stores that
-replicate to minimize multiget ``fan out''~\cite{fb-memcache} or give users
+replicate to minimize multi-get ``fan-out''~\cite{fb-memcache} or give users
 explicit control over data placement to exploit locality~\cite{spanner}.
 
 \input {index-motivation.tex}
 
-Imbalance has a similar effect on another common case: indexes.
+Load imbalance has a similar effect on another common case: indexes.
 %range-based secondary indexes.  RAMCloud's SLIK~\cite{ramcloud-slik} indexes
 %are partitioned ordered B-trees that support range scans on secondary keys.
 %The indexes themselves only contain the primary keys of records in their
@@ -140,7 +142,8 @@ Index ranges are especially prone to hotspots, skew shifts, and load increases
 that require splits and migration.
 %
 Figure~\ref{fig:index-load} explores this sensitivity on a cluster with a single
-table and secondary index.  The table contains one million 100~B records each
+table and secondary index.  The table contains one million 100~B
+records, each
 with a 30~B primary and a 30~B secondary key. Clients issue short 4-record scans over
 the index with the start key chosen from a Zipfian distribution with skew
 $\theta$ = 0.5.
@@ -152,7 +155,8 @@ the \nnnth percentile scan latency.
 For a target throughput of 1~million objects per second, it is sufficient
 (for a \nnnth percentile access latency of 100~\us) and
 most efficient (dispatch load is lower) to have the index and table on one server each, but this breaks
-down as load increases. At higher loads, \nnnth percentile latency spikes and
+down as load increases. At higher loads, \nnnth percentile latency
+spikes, and
 more servers are needed to bound tail latency. Splitting the index over two
 servers improves throughput and restores low access latency.
 
@@ -168,11 +172,11 @@ number of servers for the indexed table is the best under high load. Leaving the
 backing table on one server and spreading the index over two servers increases
 throughput at 100~\us \nnnth percentile access latency by 54\% from 1.3 to 2.0
 million objects per second. Splitting both the backing table and the index over two
-servers each gives 6.3\% worse throughput {\em and} increases load by 26\%.
+servers gives 6.3\% worse throughput {\em and} increases dispatch load by 26\%.
 
-Overall, reconfiguration is essential to meet SLAs (service level agreements), to provide peak throughput,
-and to minimize load as workloads grow, shrink, and change. Spreading load
-evenly is a non-goal inasmuch as SLAs are met; approaches like consistent
+Overall, reconfiguration is essential to meet SLAs (service level agreements), provide peak throughput,
+and minimize load as workloads grow, shrink, and change. Evenly spreading load
+is a non-goal as long as SLAs are met; approaches like consistent
 hashing can throw away (sometimes large factor) gains from exploiting locality.
 
 \subsection{The Need for (Migration) Speed}
@@ -181,9 +185,10 @@ hashing can throw away (sometimes large factor) gains from exploiting locality.
 Data migration speed dictates how fast a cluster can adapt to changing
 workloads.  Even if workload shifts are known in advance (like
 diurnal patterns), if reconfiguration takes hours, then scaling up and down to
-save energy or to do other work becomes impossible.  Making
-things harder, recent per-server DRAM capacity growth has been about 33-50\%
-per year~\cite{computer-architecture}, meaning each server hosts more and more
+save energy or to do other work becomes impossible.
+Recent per-server DRAM capacity growth has been about 33-50\%
+per year~\cite{computer-architecture}, making things harder; each server
+hosts an ever-increasing amount of
 data that may need to move when the cluster is reconfigured.
 
 % Arguments:
@@ -192,23 +197,24 @@ data that may need to move when the cluster is reconfigured.
 
 A second hardware trend is encouraging; per-host network bandwidth has kept up
 with DRAM growth in recent years~\cite{ethernet}, so hardware
-itself doesn't limit fast migration.  For example, an unrealistically large
+itself does not limit fast migration.  For example, an unrealistically large
 migration that evacuates half of the data from a 512~GB storage server could
-complete in less than a minute at line rate (5~GB/s or more).
+complete in less than a minute at line-rate (5~GB/s or more).
 
 % Squall numbers on Fig 10a: contract from 4 nodes to 3; 2.5 GB of data on the
 % source; each cluster member receives (2.5/3 * 1024) = 853 MBs in (220 - 30) =
 % 190 seconds. So 4.5 MB/s per target.
 
-Unfortunately, state-of-the-art migration techniques haven't kept up
-with network improvements. They move data at a few megabytes per second in
-order to minimize impact on ongoing transactions, and they focus on preserving
+Unfortunately, state-of-the-art migration techniques have not kept up
+with network improvements. They move data at a few megabytes per second
+to minimize the impact on ongoing transactions, and they focus on preserving
 transaction latencies on the order of tens of milliseconds~\cite{squall}.
-Ignoring latency, these systems would still take more than 16~hours to
+These systems would take more than 16~hours to
 migrate 256~GB of data, and small migrations of 10~GB would still take
 more than half an hour. Furthermore, modern in-memory systems deliver access
 latencies more than 1,000$\times$ lower: in the range of 5~to~50~\us for small
-accesses, transactions, or secondary index lookups/scans. If the network isn't a
+accesses, transactions, or secondary index lookups/scans. If the network
+is not a
 bottleneck for migration, then what is?
 
 \subsection{Barriers to Fast Migration}
