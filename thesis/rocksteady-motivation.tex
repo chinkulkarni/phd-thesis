@@ -224,16 +224,16 @@ RAMCloud has a simple, pre-existing mechanism that allows tables to be split
 and migrated between servers.
 %It builds on RAMCloud's unique approach to
 %distributed recovery~\cite{ramcloud-recovery}.
-During normal operation each server stores
+During regular operation, each server stores
 all records in an in-memory log. The log is incrementally cleaned; it is
 never checkpointed, and a full copy of it always remains in memory.
 %a source and target reuse the same mechanisms used for recovery.
-To migrate a tablet,
+When migrating a tablet,
 the source iterates over all of the entries in its
-in-memory log and copies the values that are being migrated into staging buffers for
+in-memory log. It copies the values that are being migrated into staging buffers for
 transmission to the target. The target receives these buffers and performs a
 form of logical replay as it would during recovery. It copies the received
-records into its own log, re-replicates them, and it updates its in-memory hash
+records into its log, re-replicates them, and updates its in-memory hash
 table, which serves as its primary key index. Only after all of the records
 have been transferred is tablet ownership switched from the source to
 the target.
@@ -245,11 +245,11 @@ the target.
 %K RAMCloud's old migration design.
 %K Also, the old one wasn't two order's' of magnitude slower. 
 %K Our NIC line rate < 130*100 MB/s
-This basic mechanism is faster than most
+This simple mechanism is faster than most
 approaches,
 %and meets SLAs 1,000$\times$ tighter
 but it is still orders of
-magnitude slower than what hardware can support.  Figure~\ref{fig:bottlenecks}
+magnitude slower than what hardware can support -- figure~\ref{fig:bottlenecks}
 breaks down its bottlenecks. The
 experiment shows the effective migration throughput between a single loaded
 source and unloaded target server during the migration of
@@ -263,26 +263,27 @@ re-replicates them on backups.
 %Once all data has been received the
 %source blocks updates for a few hundred microseconds as the last few updates
 %are transmitted and ownership is shifted from the source to the target server.
-In steady state, migration transfers about 130~MB/s.
+In steady-state, migration transfers about 130~MB/s.
 % XXX We probably want to say something here about burning cycles waiting on
 % re-replication RPCs.
 
-In "Skip Re-Replication" the target skips backing up the
-received data in its replicated log. This is unsafe, since the target might accept
+In "Skip Re-Replication," the target skips backing up the
+received data in its replicated log. This setup is unsafe since the target might accept
 updates to the table after it has received all data from the source. If the
 target crashes, its recovery log would be missing the data received from the
 source, so the received table would be recovered to an inconsistent state.
-Even so, migration only reaches 180~MB/s. This shows that the
-logical replay used to update the hash table on the target is a key
+Even so, migration only reaches 180~MB/s. This experiment shows that the
+logical replay used to update the hash table on the target is a
+significant
 bottleneck in migration.
 
 "Skip Replay on Target" does the full source-side processing of migration and
 transmits the data to the target, but the target skips replay and replication.
-This raises migration performance
+This setup raises migration performance
 to 600~MB/s, more than a 3$\times$ increase in migration
 rate. Even so, it shows that the source side is also an impediment to fast
 migration. The hosts can communicate at 5~GB/s, so the link is still only
-about 10\% utilized. Also, at this speed re-replication becomes a
+about 10\% utilized. At this speed, re-replication becomes a
 problem; RAMCloud's existing log replication mechanism bottlenecks at around
 380~MB/s on our cluster.
 
@@ -291,7 +292,8 @@ transmitting the data to the target, and "Skip Copy for Tx" only identifies
 objects that need to be migrated and skips all further work. Overall, copying
 the identified objects into staging buffers to be posted to the
 transport layer (drop
-from 1,150~MB/s to 710~MB/s) has a bigger impact than the actual transmission
+from 1,150~MB/s to 710~MB/s) has a more significant impact than the
+actual transmission
 itself (drop from 710~MB/s to 600~MB/s).
 
 \subsection{Requirements for a New Design}
@@ -299,16 +301,16 @@ itself (drop from 710~MB/s to 600~MB/s).
 These bottlenecks give the design criteria for Rocksteady.
 
 \noindent
-\textbf{No Synchronous Re-replication.} Waiting for data to be re-replicated by
-the target server wastes CPU cycles on the target waiting for responses from
-backups, and it burns memory bandwidth. Rocksteady's approach is inspired by
+\textbf{No Synchronous Re-replication:} Waiting for data to be re-replicated by
+the target server wastes CPU cycles and burns memory bandwidth.
+Rocksteady's approach is inspired by
 lineage~\cite{spark}; a target server takes a temporary dependency on the
-source's log data to safely eliminate log replication from the migration fast
-path (\S\ref{sec:log-dep}).
+source's log data to safely eliminate log replication from the migration
+fast-path (\S\ref{sec:log-dep}).
 
 \noindent
-\textbf{Immediate Transfer of Ownership.} RAMCloud's migration takes minutes
-or hours during which no load can be shifted away from the source
+\textbf{Immediate Transfer of Ownership:} RAMCloud's migration takes minutes
+or hours. During this time, no load can be shifted away from the source
 because the target cannot safely take ownership until all
 the data has been re-replicated.  Rocksteady immediately and safely shifts
 ownership from the source to the target (\S\ref{sec:new-design}).
@@ -320,16 +322,16 @@ ownership from the source to the target (\S\ref{sec:new-design}).
 %(1,150~MB/s to 600~MB/s) even if the target wasn't a bottleneck.
 
 \noindent
-\textbf{Parallelism on Both the Target and Source.} Log replay needn't be
-single threaded.  A target is likely to be under-loaded, so parallel
+\textbf{Parallelism on Both the Target and Source:} Log replay need not be
+single-threaded.  A target is likely to be under-loaded, so parallel
 replay makes sense. Rocksteady's parallel replay can incorporate log records
 at the target at more than 3~GB/s (\S\ref{sec:eval-replay}). Similarly,
 source-side migration operations should be pipelined and parallel. Parallelism
 on both ends requires care to avoid contention.
 
 \noindent
-\textbf{Load-Adaptive Replay.} Rocksteady's migration manager minimizes impact
-on normal request processing with fine-grained low-priority
+\textbf{Load-Adaptive Replay:} Rocksteady's migration manager minimizes impact
+on regular request processing with fine-grained low-priority
 tasks~\cite{morsel-driven-parallelism,sparrow}. Rocksteady also incorporates
 into RAMCloud's transport layer to minimize jitter caused by background
 migration transfers (\S\ref{sec:qos}).
