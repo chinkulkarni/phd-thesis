@@ -1,10 +1,10 @@
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.9\columnwidth]{figures/rocksteady-target.pdf}
-\caption{Target pull management and replay. There is one \pull
+\caption{Target pull management and replay. One \pull is
   outstanding per source partition. Pulled records are replayed
-  at lower priority than normal requests.
-  Each worker places records into
+  at a lower priority than regular requests,
+  and each worker places records into
   a separate side log to avoid contention. Any worker core can service a
   replay on any partition.}%
 \label{fig:target}%

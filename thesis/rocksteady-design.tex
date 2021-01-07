@@ -37,27 +37,29 @@
 %\label{table:rpcs}
 %\end{table}
 
-In order to keep its goal of fast migration that retains \nnnth percentile
+To keep its goal of fast migration that retains \nnnth percentile
 access latencies of a few hundred microseconds, Rocksteady is fully
-asynchronous at both the migration source and target; it uses modern kernel-bypass and
-scatter/gather DMA for zero-copy data transfer when supported; and it uses
+asynchronous at both the migration source and target. It uses modern kernel-bypass and
+scatter-gather DMA for zero-copy data transfer when supported. It also uses
 pipelining and adaptive parallelism at both the source and target to speed
 transfer while yielding to normal-case request processing.
 
 Migration in Rocksteady is driven by the target, which pulls records from
-the source. This places most of the complexity, work, and state on the target,
-and it eliminates the bottleneck of synchronous replication
-(\S\ref{sec:bottlenecks}). In most migration scenarios, the source of the
-records is in a state of overload or near-overload, so we must avoid giving it
+the source. This approach places most of the complexity, work, and state
+on the target,
+eliminating the bottleneck of synchronous replication
+(\S\ref{sec:bottlenecks}). In most migration scenarios, the source
+is in a state of overload or near-overload, so we must avoid giving it
  more work to do.
 The second advantage of this arrangement is that it meets
-our goal of immediate transfer of record ownership. As soon as
+our goal of immediately transferring record ownership. As soon as
 migration begins, the source only serves a request for each of
-the affected records at most once more. This makes the load-shedding effects
+the affected records at most once more. This approach makes the
+load-shedding effects
 of migration immediate.
 Finally, target-driven migration allows both the
 source and the target to control the migration rate, fitting with our need
-for load-adaptive migration and making sure that cores are never idle unless
+for load-adaptive migration and ensuring that cores are never idle unless
 migration must be throttled to meet SLAs.
 
 \input {rocksteady-overview.tex}
@@ -65,46 +67,48 @@ migration must be throttled to meet SLAs.
 %K Migration flow overview.
 The heart of Rocksteady's fast migration is its pipelined and
 parallelized record transfer. Figure~\ref{fig:migration-overview} gives an
-overview of this transfer.  In the steady state of migration, the target
+overview of this transfer.  In the steady-state of migration, the target
 sends pipelined asynchronous \pull RPCs to the source to
 fetch batches of records (\one). The source iterates down its hash table to
 find records for transmission (\two); it posts the
 record addresses to the transport layer, which transmits the records directly from the source log
 via DMA if the underlying hardware supports it (\three). Whenever cores are available, the target schedules the
-    replay of the records from any \pulls that have completed. The replay process
-incorporates the records into the target's in-memory log and links the records
+    replay of the records from any \pulls that have been completed. The replay process
+incorporates the records into the target's in-memory log and links them
 into the target's hash table (\four).
 
-Migration is initiated by a client: it does so by first splitting a tablet,
+A client initiates migration: it does so by first splitting a tablet,
 then issuing a \mt
-RPC to the target to start migration.
+RPC to the target to start the migration.
 Rocksteady immediately transfers ownership of the tablet's records to the target,
 which begins handling all requests for them.
-Writes can be serviced immediately; reads can be serviced only after
+Writes can be serviced immediately; reads can only be serviced after
 the records requested have been migrated from the source.  If the target
 receives a request for a record that it does not yet have, the 
 target issues a \priopull RPC to the
 source to fetch it and tells the client to retry the operation after randomly waiting a
 few tens of microseconds. \priopull{} responses are processed identically to
-\pulls, but they fetch specific records and the source and target prioritize
+\pulls, but they fetch specific records, and the source and target prioritize
 them over bulk \pulls.
 
 This approach to \priopulls favors immediate load
 reduction at the source. It is especially effective if access patterns are
-skewed, since a small set of records constitutes much of the load: in this
+skewed since a small set of records constitutes much of the load: in this
 case, the source sends one copy of the ``hot'' records to the target early
 in the migration, then it does not need to serve any more requests for those
-records.  In fact, \priopulls can actually 
-accelerate migration. At the start of migration, they help to quickly create the
+records.  In fact, \priopulls can
+accelerate migration. At the start of migration, they quickly create the
 headroom needed on the overloaded source to speed parallel background \pulls
 and help hide \pull costs.
 
 Sources
 keep no migration state, and their migrating tablets are immutable. All the
-source needs to keep track of is the fact that the tablet is being migrated: if
-it receives a client request for a record that is in a migrating tablet,
+source needs to keep track of is the fact that the tablet is being
+migrated.
+If
+it receives a client request for a record in a migrating tablet,
 it returns a status indicating that it no longer owns the tablet, causing the
-client to re-fetch the tablet mapping from the coordinator.
+client to re-fetch the coordinator's tablet mapping.
 
 \subsection{Task Scheduling, Parallelism, and QoS}
 \label{sec:qos}
@@ -114,8 +118,8 @@ The goal of scheduling within Rocksteady is to keep cores on the target as
 busy as possible without overloading cores on the source, where overload 
 would result in SLA violations.
 
-To understand Rocksteady's approach to parallelism and pipelining, it is
-important to understand scheduling in RAMCloud.
+To understand Rocksteady's approach to parallelism and pipelining, one
+must first understand scheduling in RAMCloud.
 RAMCloud uses a threading model that avoids preemption: in order to dispatch requests
 within a few microseconds, it cannot afford the disruption of context
 switches~\cite{ramcloud}. One core handles dispatch; it polls the network
@@ -135,13 +139,13 @@ any entries.
 
 RAMCloud's dispatch/worker model gives four benefits for migration. First,
 migration blends in with background system tasks like garbage collection and
-(re-)replication. Second, Rocksteady can adapt to system load ensuring minimal
-disruption to normal request processing while migrating data
+(re-)replication. Second, Rocksteady can adapt to system load, ensuring minimal
+disruption to regular request processing while migrating data
 as fast as possible. Third, since the source and
 target are decoupled, workers on the source can always be busy collecting data
 for migration, while workers on the target can always make progress by
 replaying earlier responses.  Finally, Rocksteady makes no assumptions of
-locality or affinity; a migration related task can be
+locality or affinity; a migration-related task can be
 dispatched to \emph{any} worker, so any idle capacity on either end can be put
 to use.
 
@@ -165,46 +169,47 @@ The source's only task during migration is to respond
 to \pull and\linebreak{}\priopull messages with sufficient parallelism to
 keep the target busy. While concurrency would seem
 simple to handle, there is one challenge that complicates the design.
-A single \pull can't request a fixed range of keys, since the target does not know
+A single \pull can not request a fixed range of keys since the target does not know
 ahead of time how many keys within that range will exist in the tablet. A \pull of a fixed range of keys
 could contain too many records to return in a single response, which would violate
-the scheduling requirement for short tasks. Or, it could contain no
-records at all, which would result in \pulls that are pure overhead.  \pull must be efficient
+the scheduling requirement for short tasks. Alternatively, it could contain no
+records at all, which would result in \pulls that are pure overhead.
+The \pull RPC must be efficient
 regardless of whether the tablet is sparse or dense. One solution is for each
 \pull to return a fixed amount of data. The amount can be chosen to be small
-enough to avoid occupying source worker cores for long periods, but large
+enough to avoid occupying source worker cores for long periods but large
 enough to amortize the fixed cost of RPC dispatch.
 
-However, this approach hurts concurrency:  each new pull needs state recording which
-record was the last pulled, so that the pull can continue from where it left off.
+However, this approach hurts concurrency:  each new pull needs state recording
+the last pulled record so that the pull can continue from where it left off.
 The target could remember the last key it received from the previous pull and
 use that as the starting point for the next pull, but this would prevent it
 from pipelining its pulls.
 It would have to wait for one to fully complete before it could
-issue the next, making network round trip latency into a major bottleneck.
+issue the next, making network round trip latency into a significant bottleneck.
 Alternately, the source could track
 the last key returned for each pull, but this has the same problem.  Neither
-approach allows parallel \pull processing on the source, which is key for fast
-migration.
+approach allows parallel \pull processing on the source, which is
+crucial for fast migration.
 
 \input {rocksteady-source.tex}
 
-To solve this, the target logically {\em partitions} the source's key hash
-space and only issues concurrent \pulls if they are for disjoint regions of the
-source's key hash space (and, consequently, disjoint regions of the source's
+The target solves this problem by logically {\em partitioning} the source's key-hash
+space. It only issues concurrent \pulls if they are for disjoint regions of the
+source's key-hash space (and, consequently, disjoint regions of the source's
 hash table).  Figure~\ref{fig:source} shows how this works.
 Since round-trip delay is similar to source pull processing time,
-a small constant factor more partitions than worker cores is sufficient for the
+a small constant factor more partitions than worker cores are sufficient for the
 target to keep any number of source workers running fully-utilized.
 
 The source attempts to meet its SLA requirements by prioritizing regular client
 reads and writes over \pull processing: the source can essentially treat
 migration as a background task and prevent it from interfering with foreground
-tasks. It is worth noting that the source's foreground load typically drops
-immediately when migration starts, since Rocksteady has moved
+tasks. It is worth noting that the source's foreground load typically
+immediately drops when migration starts since Rocksteady has moved
 ownership of the (likely hot) migrating records to the target already; this
 leaves capacity on the source that is available for the background migration
-task. \priopulls are given priority over client traffic, since they
+task. \priopulls are given priority over client traffic since they
 represent the target servicing a client request of its own.
 
 %When dispatched at the source, a worker linearly scans through the partition of
@@ -222,12 +227,13 @@ that have completed.
 
 \input {rocksteady-target.tex}
 
-At migration start, the manager logically divides the source server's key hash
-space into partitions (\S\ref{sec:source}).  Then, it asynchronously issues
+At the start of migration, the manager logically divides the source
+server's key-hash
+space into partitions (\S\ref{sec:source}). It then asynchronously issues
 \pull requests to the source, each belonging to a different partition of the
 source hash space. As \pulls complete, it pushes the records to idle workers,
 and it issues a new \pull. If all workers on the target are busy, then
-no new \pull is issued, which has the effect of acting as built-in flow control
+no new \pull is issued, which acts as built-in flow control
 for the target node. In that case, new \pulls are issued when workers become
 free and begin to process records from already completed \pulls.
 
@@ -249,16 +255,17 @@ Besides parallelizing \pulls, performing work at the granularity of distinct
 hash table partitions also hides network latency by allowing Rocksteady to pipeline
 RPCs.  Whenever a \pull RPC completes, the migration manager first issues a
 new, asynchronous \pull RPC for the next chunk of records on the same
-partition; having a small number of independent partitions is sufficient to
-completely overlap network delay with source-side \pull processing.
+partition. Having a small number of independent partitions is sufficient to
+overlap network delay with source-side \pull processing completely.
 
 \subsubsection{Parallel Replay}
 
-Replaying a \pull response primarily consists of incorporating the records into
+Replaying a \pull response consists of incorporating the records into
 the master's in-memory log and inserting references to the records in the
-master's hash table.  Using a single core for replay would limit migration to a
-few hundred megabytes per second (\S\ref{sec:eval-replay}),  but parallel replay where
-cores share a common log would also break down due to contention.  Eliminating
+master's hash table.  Using a single core to replay would limit migration to a
+few hundred megabytes per second (\S\ref{sec:eval-replay}),  but a
+parallel approach where
+cores share a single log would also break down due to contention.  Eliminating
 contention is key for fast migration.
 
 Rocksteady does this by using per-core {\em side logs} off of the target's main
@@ -268,17 +275,17 @@ of migration, each side log's segments are lazily replicated, and then the side
 log is {\em committed} into the main log by appending a small metadata record
 to the main log. RAMCloud's log cleaner needs accurate log statistics to be
 effective; side logs also avoid contention on statistics counters by
-accumulating information locally and only updating the global log statistics
-when they are committed to the main log.
+accumulating information locally and updating the global log statistics
+only when they are committed to the main log.
 
 \subsection{Exploiting Modern NICs}
 \label{sec:hw}
 All data transfer in Rocksteady takes place through RAMCloud's RPC layer
 allowing the protocol to be both transport and hardware agnostic. Target
 initiated one-sided RDMA reads may seem to promise fast transfers without the
-source's involvement, but they break down because the records under migration are
-scattered across the source's in-memory log. RDMA reads do support
-scatter/gather DMA, but reads can only fetch a single contiguous chunk of
+source's involvement. However, they break down because the records under migration are
+scattered across the source's in-memory log. RDMA reads support
+scatter-gather DMA, but reads can only fetch a single contiguous chunk of
 memory from the remote server. That is, a single RDMA read {\em scatters} the
 fetched value locally; it cannot {\em gather} multiple remote locations with a
 single request. As a result, an RDMA read initiated by the target could only
@@ -286,26 +293,27 @@ return a single data record per operation unless the source
 pre-aggregated all records for migration beforehand, which would undo the
 zero-copy benefits of RDMA.
 Additionally, one-sided RDMA would require the target
-to be aware of the structure and memory addresses of the source's log. This
+to be aware of the source's log's structure and memory addresses. This
 would complicate synchronization, for example, with RAMCloud's log cleaner.
 Epoch-based protection can help (normal-case RPC operations like read and write
 synchronize with the local log cleaner this way), but extending epoch
 protection across machines would couple the source and target more
 tightly.
 
-Rocksteady never uses one-sided RDMA, but it uses scatter/gather
+Rocksteady never uses one-sided RDMA, but it uses scatter-gather
 DMA~\cite{ramcloud} when supported by the transport and the NIC to transfer
 records from the source without intervening copies.
 Rocksteady's implementation always operates on references to 
-the records rather than making copies to avoid all
+the records rather than making copies to avoid
 unnecessary overhead.
 
-All experiments in this paper were run with a DPDK driver that currently
-copies all data into transmit buffers. This creates one more copy of records
+All experiments in this chapter were run with a DPDK driver that currently
+copies all data into transmit buffers. This setup creates one more copy of records
 than strictly necessary on the source. This limitation is not fundamental;
 we are in the process of changing RAMCloud's DPDK support to eliminate the
-copy.  Rocksteady run on Reliable Connected Infiniband with zero-copy shows
-similar results. This is in large part because Intel's DDIO support means that
+copy.  Experiments run on Reliable Connected Infiniband with zero-copy shows
+similar results. This similarity is in large part because Intel's DDIO
+support means that
 the final DMA copy from Ethernet frame buffers is from the CPU
 cache~\cite{ddio}.
 Transition to zero-copy will reduce memory bandwidth
@@ -319,16 +327,18 @@ saturated during migration.
 \subsection{Priority Pulls}
 \label{sec:priopulls}
 
-\priopulls work similarly to normal \pulls but are triggered on-demand by
+\priopulls work similarly to regular \pulls but are triggered on-demand by
 incoming client requests. A \priopull targets specific key hashes, so it
-doesn't require the coordination that \pulls do through partitioning.
-The key consideration for \priopulls is how to manage waiting clients and worker
-cores.  A simple approach is for the target to issue a synchronous \priopull to
-the source when servicing a client \texttt{read} RPC for a key that hasn't been
+does not require the coordination that \pulls do through partitioning.
+The crucial consideration for \priopulls is how to manage clients and worker
+cores that are waiting. A simple approach is for the target to issue a
+synchronous \priopull to
+the source when servicing a client \texttt{read} RPC for a key that has
+not been
 moved yet. However, this would slow migration and hurt client-observed latency
 and throughput. \priopulls take several microseconds to complete, so stalling a
 worker core on the target to wait for the response takes cores away from
-migration and normal request processing. Thread context switch also isn't an
+migration and regular request processing. Thread context switch also is not an
 option since the delay is just a few microseconds, and context switch overhead
 would dominate.  Individual, synchronous \priopulls would also initially result
 in many (possibly duplicate) requests being forwarded to the source, delaying
@@ -345,7 +355,7 @@ requests the batch of records with a single \priopull. While a
 requested keys, and it issues them when the first \priopull completes.
 De-duplication ensures that \priopulls never request the same key hash
 from the source twice. If the hash for a new request was part of an already in-flight \priopull
-or if it is in the next batch accumulating at the target, it is
+or in the next batch accumulating at the target, it is
 discarded.  Batching is key to shedding source load quickly since it ensures
 that the source never serves a request for a key more than once after migration
 starts, and it limits the number of small requests that the source has to
@@ -388,12 +398,12 @@ challenge for fault tolerance if tablet ownership is transferred to the target
 at the start of migration. If the target crashes in the middle of a migration,
 then neither the source nor the target would have all of the records needed to
 recover correctly; the target may have serviced writes for some of the records
-under migration, since ownership is transferred immediately at the start of
-migration.  This also means that neither the distributed recovery log of
-the source nor the target contain all the information needed for a correct
+under migration since ownership is transferred immediately at the start of
+migration.  Therefore, neither the distributed recovery log
+of the source nor the target contains all the information needed for correct
 recovery. Rocksteady takes a unique approach to solving this problem that
 relies on RAMCloud's distributed fast recovery, which can restore a crashed
-server's records back into memory in 1~to~2~seconds.
+server's records into memory in 1~to~2~seconds.
 
 To avoid synchronous re-replication of all of the records as they are
 transmitted from the source to the target, the migration manager
@@ -401,19 +411,19 @@ registers a dependency of the source server on the tail of the target's
 recovery log at the cluster coordinator. The target must already contact the
 coordinator to notify it of the ownership transfer, so this adds no additional
 overhead.  The dependency is recorded in the coordinator's tablet metadata for
-the source, and it consists of two integers: one indicating which
-master's log it depends on (the target's), and another indicating the offset
-into the log where the dependency starts. Once migration has completed
+the source. It consists of two integers: one indicating which
+master's log the source depends on (the target's), and another indicating the offset
+into the log where the dependency starts. Once the migration has been completed
 and all sidelogs have been committed, the target contacts the
 coordinator requesting that the dependency be dropped.
 
 If either the source or the target crashes during migration, Rocksteady
 transfers ownership of the data back to the source.  To ensure the source has
-all of the target's updates, the coordinator induces a recovery of the source
-server which logically forces replay of the target's recovery log tail along
+all of the target's updates, the coordinator induces recovery of the source
+server, which logically forces replay of the target's recovery-log tail along
 with the source's recovery log. This approach keeps things simple by reusing
 the recovery mechanism at the expense of extra recovery effort (twice as much
-as for a normal recovery) in the rare case that a machine actively involved in
+as for a normal recovery) in the rare case that a machine involved in
 migration crashes.
 %
 Extending RAMCloud's recovery to allow recovery from multiple logs is
