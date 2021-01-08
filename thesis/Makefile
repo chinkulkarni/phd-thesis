@@ -220,6 +220,7 @@ STYFILES	= amssymb.sty			\
 TEXFILES        = abstract.tex			\
 		  acknowledge.tex		\
 		  introduction.tex		\
+		  conclusion.tex		\
 		  rocksteady.tex		\
 		  rocksteady-intro.tex		\
 		  rocksteady-motivation.tex	\

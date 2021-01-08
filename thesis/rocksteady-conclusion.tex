@@ -1,14 +1,9 @@
-\section{Conclusion}
-
-Low-latency in-memory stores are designed to tolerate the heaviest request
-loads, but if they are too stripped down they cannot deal with complex
-higher-level operations like reacting to workload changes, skew shifts, and load spikes.
 Rocksteady is a migration protocol for in-memory key-value stores that avoids
 the need for and overhead of in-advance state partitioning; it eliminates
-replication overhead from the migration fast path; it exploits parallelism; and
+replication overhead from the migration fast-path; it exploits parallelism;
 it exploits modern NIC hardware.  Rocksteady has a
 ``pay-as-you-go'' approach that helps avoid overloading the source during migration
 using asynchronous batched on-demand pulls to shift load away from the source
 as parallel background transfers proceed.  In all, Rocksteady can move the entire DRAM
 of a modern data center machine in a few minutes while retaining \nnnth
-percentile tail latency of less than 250~\us.
+percentile tail latency of lesser than 250~\us.
