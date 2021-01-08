@@ -169,22 +169,23 @@ used for the evaluation can be accessed online on GitHub at\linebreak{}
 Figures~\ref{fig:running-throughput} and~\ref{fig:running-latency} (a) show
 Rocksteady's impact from the perspective of the YCSB clients. Migration
 takes 30~s and transfers at 758~MB/s. Throughput drops when ownership is
-transferred at the start of migration, since the clients must wait for records
+transferred at the start of migration since the clients must wait for records
 to arrive at the target. As records are being transferred, \nnnth percentile
 end-to-end response times start at 250~\us and taper back down to 183~\us as
 hot records from \priopulls arrive at the target. After migration, median
-response times drop from 10.1~\us to 6.7~\us, since each server's dispatch is under
+response times drop from 10.1~\us to 6.7~\us since each server's dispatch is under
 less load. Likewise, after migration moves enough records, throughput briefly
-exceeds the before-migration throughput, since client load is open and some
+exceeds the before-migration throughput since client load is open, and some
 requests are backlogged.
 
 Figures~\ref{fig:running-throughput} and~\ref{fig:running-latency} (b) show
-\priopulls are essential to Rocksteady's design. Without \priopulls, client
+that \priopulls are essential to Rocksteady's design. Without
+\priopulls, client
 requests for a record cannot complete until they are moved by the
 \pulls, resulting in requests that cannot complete
-until migration is done. Only a small fraction of requests complete
+until the migration is done. Only a small fraction of requests complete
 while the migration is ongoing, and throughput is elevated after
-migration for a longer period. In practice, this would result in
+migration for a more extended period. In practice, this would result in
 timeouts for client operations. Migration speed is 19\% faster
 (904~MB/s) without \priopulls enabled.
 
@@ -198,7 +199,8 @@ case above, source throughput decreases under migration load, and clients
 eventually fall behind.  For long migrations, this can lead to client timeouts
 %which is evidenced by the increased median access latency while migration
 %is ongoing.
-in a fully open load, since throughput would drop below offered load for the duration of migration.
+in a fully open load since throughput would drop below the offered load
+for the duration of migration.
 Additionally, migration suffers a 27.7\% slowdown
 (758~MB/s down to 549~MB/s), and the impact on the \nnnth
 percentile access latency is worse than the full Rocksteady protocol
@@ -237,14 +239,15 @@ A key goal of Rocksteady is to shift load quickly from the source to the
 target. Most workloads exhibit some skew, but the extent of that skew impacts
 Rocksteady's ability to shift load quickly. Figure~\ref{fig:load-skew}
 examines the extent to which Rocksteady's effectiveness at reducing client load
-is skew dependent. With no skew (uniform access, skew $\theta$ = 0) \priopulls are
-sufficient to maintain client access to the tablet, but low request locality
-means the full load transfer only proceeds as quickly as the background pulls
+is skew dependent. With no skew (uniform access, skew $\theta$ = 0), \priopulls are
+sufficient to maintain client access to the tablet. However, low request locality
+means the full load transfer only proceeds as quickly as the background
+\pulls
 can transfer records.  Overall, the results are promising when considering the
 source's dispatch load, which is its most scarce resource for typical
 read-heavy workloads. Regardless of workload skew, source-side dispatch load
 remains relatively flat from the time migration starts until it completes.
-This means that  Rocksteady's eager ownership transfer enabled by
+This result means that Rocksteady's eager ownership transfer enabled by
 batched \priopulls makes up for any extra dispatch load the \pulls place
 on the source regardless of the skew.
 
@@ -259,7 +262,7 @@ on the source regardless of the skew.
 Figures~\ref{fig:batching-lat} and~\ref{fig:batching-load} compare
 asynchronous batched \priopulls with the na\"{i}ve, synchronous approach
 when background \pulls are disabled. The asynchronous
-approach doesn't help tail latency:
+approach does not help tail latency:
 \nnnth latency stays consistent at 160~\us for the rest of the
 experiment, but median access latency drops to 7.4~\us immediately.
 On the other hand, the synchronous approach results in
@@ -268,13 +271,13 @@ primarily due to workers at the target waiting for \priopulls to return, which
 can be seen in the increased worker utilization at the target
 (Figure~\ref{fig:batching-load}b).  However, \nnnth percentile access latency
 is lower than the asynchronous approach since pull responses are sent to
-waiting clients immediately.
+clients immediately.
 
 \priopulls are critical to the goal of
 rapidly shifting load away from the source. The headroom thus
-obtained can be used to service \pulls at the source thereby allowing
+obtained can be used to service \pulls at the source, thereby allowing
 the migration to go as fast as possible. At the same time, \priopulls
-help maintain tail latencies by fetching client requested data
+help to maintain tail latencies by fetching client requested data
 on-demand.
 
 \subsection{Pull and Replay Scalability}
@@ -282,8 +285,8 @@ on-demand.
 
 \input {rocksteady-scalability}
 
-Parallel and pipelined pulls and replay are key to migration speed that
-interleaves with normal case request processing.  The microbenchmark shown in
+Parallel and pipelined pulls and replay are essential to migration speed that
+interleaves with normal-case request processing. The microbenchmark shown in
 Figure~\ref{fig:parallel-replay} explores the scalability of the source and
 target pull processing logic. In the experiment, the source and target
 pull/replay logic was run in isolation on large batches of records to stress
@@ -291,17 +294,17 @@ contention and to determine the upper bound on migration speed at both ends
 independently.
 
 Overall, both the source and target can process pulls and replays in parallel with
-little contention. In initial experiments, performance was limited when the
+little contention. In initial experiments, replay's performance was limited when the
 target replayed records into a single, shared in-memory log, but per-worker side logs
 remedy this. Small 128~B records (like those used in the evaluation) are
 challenging. They require computing hashes and checksums over many small log
 entries on both the source and target. On the target, they also require many
 probes into the hash table to insert references, which induces many costly
 cache misses. Even so, the source and target can migrate 5.7~GB/s and
-3~GB/s
-respectively. The source outpaces target replay by 1.8~to~2.4$\times$ on the
+3~GB/s,
+respectively. The source outpaces replay by 1.8~to~2.4$\times$ on the
 same number of cores, so migration stresses the target more than the source.
-This works well for scaling out, since the source is likely to be under an
+This result works well for scaling out since the source is likely to be under an
 existing load that is being redistributed to a less loaded target. For larger
-record sizes, pull/replay logic doesn't limit migration.
+record sizes, pull/replay logic does not limit migration.
 
