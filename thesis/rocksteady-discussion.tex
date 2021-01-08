@@ -6,17 +6,17 @@ Some of the most broadly applicable lessons from Rocksteady are on the
 interplay of partitioning, dispatch, and synchronization. Recent works have
 often partitioned operations~\cite{hstore,redis} or sometimes just mutating
 operations~\cite{mica} to reduce locking and contention.  Systems that strictly
-partition work (even just writes) are likely to have to reconfigure more often
-under skew.  Their access latencies also suffer, since migration must be
-interleaved with normal execution.  RAMCloud's dispatch can be a bottleneck,
-but it can also redirect any idle CPU resources on few microseconds timescale,
+partition work (even only writes) are likely to have to reconfigure more often
+under skew.  Their access latencies also suffer since migration must be
+interleaved with regular execution.  RAMCloud's dispatch can be a bottleneck,
+but it can also redirect any idle CPU resources on a few microseconds timescale,
 which is key to Rocksteady's adaptive parallel replay and tight SLAs.
 Hardware-assisted~\cite{flexnic}, client-assisted~\cite{mica}, and parallel dispatch help
-mitigate bottlenecks and delay the need for migration, but none of these can
+mitigate bottlenecks and delay the need for migration. However, none of these can
 eliminate the need for cross-machine rebalancing or the need to overlap normal
 execution and migration.
 %
-Optimizing for normal-case, steady-state request processing can make inevitable
+Optimizing for normal-case request processing can make inevitable
 background system tasks more costly.  Designers of in-memory systems must
 carefully navigate partitioning, dispatch, and locking trade-offs when planning
 for heavy rebalancing operations, like migration.
@@ -52,27 +52,27 @@ Squall.
 
 Rocksteady can migrate hundreds of megabytes per second with tight response
 latency, but it still only uses a small fraction of the bandwidth provided by
-modern networks. While its approach and its implementation can be tuned for
+modern networks. While its approach and implementation can be tuned for
 some gains, it is unlikely that simple changes would result in the
 order-of-magnitude speed up that would be needed to saturate the network.
 
-To achieve such gains without destroying normal case request processing,
+To achieve such gains without destroying normal-case request processing,
 migration might be limited to merely transferring large, opaque memory regions
 between hosts, with little-to-no packaging or replay work on either end. This
-would require the source to keep state strictly physically partitioned in fine
-enough units for it to satisfy all possible future splits. FaRM's data
-layout for example, meets these properties~\cite{farm-txns}.
+approach would require the source to physically partition its state in fine
+enough units to satisfy all possible future splits. FaRM's data
+layout, for example, meets these properties~\cite{farm-txns}.
 
 Physically partitioning groups of records on key or key hash would constrain
-RAMCloud's log structured memory cleaning. The cleaner minimizes cleaning CPU
+RAMCloud's log-structured memory cleaning. The cleaner minimizes cleaning CPU
 and memory bandwidth load by physically colocating records that are likely to
 have a similar lifetime~\cite{ramcloud-lsm}.  With physical partitioning constraints, the cleaner
-wouldn't be able to globally optimize hot/cold separation of objects.
+would not be able to optimize the hot/cold separation of objects globally.
 Investigating the cleaner's sensitivity to such partitioning could be an
-interesting direction, particularly since it might be able to assist in the
+interesting direction since it might be able to assist in the
 process of physically partitioning records.
 
-Even if records were partitioned and could be moved at line rate, it is possible
+Even if records were partitioned and could be moved at line-rate, it is possible
 that RAMCloud would need network-level support in order to avoid interference
 between large, fast migration transfers and fine-grained normal-case requests.
 
@@ -82,9 +82,9 @@ Rocksteady.  Today, RAMCloud processes requests on workers that use standard
 kernel threads.  Coroutines or cooperative user-level threading could both
 improve response distributions and efficiency~\cite{fasst-2016}. If \pull and replay operations
 could afford frequent yields to RAMCloud's dispatch, heavy operations would
-have less impact on normal case request processing. Replay and \pull operations
-could be coarser as well, resulting in less requests and lower dispatch
-overheads. This could allow Rocksteady to transfer data even more quickly with
+have less impact on normal-case request processing. Replay and \pull operations
+could be coarser as well, resulting in fewer requests and lower dispatch
+overheads. This optimization could allow Rocksteady to transfer data even more quickly with
 the same SLAs.
 
 %Discuss tradeoffs of approach that breaks tablets 10,000 ways before migration

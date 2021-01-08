@@ -1,7 +1,7 @@
 \section{Related Work}
 
 Amazon's Dynamo~\cite{dynamo} is a highly-available distributed key-value store
-that pushed for focus on \nnnth percentile access latency, though Rocksteady
+that pushed for a focus on \nnnth percentile access latency, though Rocksteady
 pushes for tail latency nearly 1,000$\times$ lower even while migrating. Dynamo
 supported strong SLAs and reconfiguration through a very different approach
 that took advantage of pre-partitioning records inside each server, replication,
@@ -19,29 +19,30 @@ log data~\cite{albatross}, similar to RAMCloud's original migration.
 Squall~\cite{squall,estore} is a state-of-the-art live migration system for the
 H-Store~\cite{hstore} scale-out shared-nothing database. It offloads the source
 quickly by breaking requested tuples out into separate units and migrating
-them on-demand. Under skewed loads, hot tuples move quickly and background
-transfers are paced to try to minimize disruption. Rocksteady uses Squall's
+them on-demand. Under skewed loads, hot tuples move quickly, and background
+transfers are paced to minimize disruption. Rocksteady uses Squall's
 combined background/tuple-level reactive pull, but it extends the approach to
 RAMCloud's more flexible parallelism model.
 H-Store's strict serial execution makes synchronizing with migration expensive;
 the execution of migration operations on a partition
-are interlocked between the source and target and block normal
+is interlocked between the source and target and blocks regular
 requests.  That is, each pull from a target core can only be serviced by a
-specific source core, and pulls and replays must operate in
+specific source core; pulls and replays must operate in
 isolation on a partition. Requests cannot be processed for keys that are
 being pulled (or for {\em any} key in a partition where a pull is ongoing).
-Target cores also spin waiting for pull responses hurting normal
+Target cores also spin, waiting for pull responses hurting
 request access latency and throughput as well as migration speed.
 Compared to all prior approaches, Rocksteady transfers data an order of
 magnitude faster with tail latencies 1,000$\times$ lower; in general,
 Rocksteady's ability to use {\em any} available core for {\em any} operation is
-key for both tail latency and migration speed.
+critical for both tail latency and migration speed.
 
 Rocksteady builds on recent work on recovery and dispatching for
 in-memory storage that relies on kernel-bypass networking
 ~\cite{mica,herd,billions,fasst-2016,rdma-guidelines,ix,arrakis,grappa}.  RAMCloud's
-recovery is a form of distributed migration~\cite{ramcloud-recovery}, but
-it is disruptive since it uses the resources of the entire cluster
+recovery is a form of distributed migration~\cite{ramcloud-recovery},
+but
+it is disruptive since it uses the entire cluster's resources
 to reload contents of a crashed server as fast as possible.
 FaRM~\cite{farm-2014,farm-txns} relies on in-memory triplication for redundancy, but
 it must re-replicate lost partitions when a server fails. It paces recovery to a
@@ -51,18 +52,19 @@ However, replicas can become overloaded too, so
 data is migrated using parallel RDMA reads.
 One key aspect of FaRM is that partitions are physical: a lost
 partition is an opaque region of memory, so most of the overhead of
-re-replication is network transfer. RAMCloud migration is more complex, since
-the source and target don't share a common partitioning or physical memory layout.
+re-replication is network transfer. RAMCloud migration is more
+complicated than FaRM since
+the source and target do not share a common partitioning or physical memory layout.
 
-Rocksteady's fast parallel packaging and replay is similar to Silo's
+Rocksteady's fast parallel packaging and replay are similar to Silo's
 single-server parallel recovery~\cite{silo,silor}. Silo partitions recovery logs
-across cores during record and during replay.  Rocksteady's replay doesn't
+across cores during record and replay.  Rocksteady's replay does not
 require any particular order; any core can replay any portion of records,
-which helps Rocksteady hit SLAs.  In Silo the database is also
-naturally offline during replay, and recovery can consume all of the resources
-of the machine. Silo's parallel replay is state-of-the-art, but Rocksteady's
-parallel replay outperforms it on far fewer cores. This may be because Silo
-must reconstruct a tree-like index rather than a flat hash table and
+which helps Rocksteady hit SLAs.  In Silo, the database is also
+naturally offline during replay, and recovery can consume all of the
+machine's resources. Silo's parallel replay is state-of-the-art, but Rocksteady's
+parallel replay outperforms it on far fewer cores. This result may be because Silo
+must reconstruct a tree-like index rather than a flat hash table, and
 filesystem I/O may induce more overhead than a NIC using kernel-bypass.
 
 %Squall
