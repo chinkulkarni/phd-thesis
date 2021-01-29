@@ -2,6 +2,9 @@
 \label{sec:evaluation}
 
 \begin{table}[t]
+\caption{Experimental configuration. Evaluation used
+one machine as server and one as client.
+Only the NIC-local CPU socket was used on the server.}
 \centering
 \begin{tabular}{p{0.15\columnwidth} p{0.75\columnwidth}}
 \toprule
@@ -21,9 +24,6 @@
 \\
 \bottomrule
 \end{tabular}
-\caption{Experimental configuration. Evaluation used
-one machine as server and one as client.
-Only the NIC-local CPU socket was used on the server.}
 \label{table:setup}
 \end{table}
 
@@ -271,6 +271,8 @@ Splinter's extension invocations are more expensive than plain \texttt{get()}
 Hence, saturating throughput improves from 1.2~M to 1.6~M aggregations
   per second.
 
+\input {aggregate-sum.tex}
+
 Note, this improvement comes in a challenging case for Splinter; at 40~Gbps,
   Splinter is never network limited.
 These results show that even if a store is CPU-limited, pushing compute to the
@@ -278,10 +280,6 @@ These results show that even if a store is CPU-limited, pushing compute to the
   request processing overheads.
 On slower networks, Splinter would provide more of a benefit since extensions
   can reduce network load.
-
-\input {aggregate-sum.tex}
-
-\input {aggregate-mul.tex}
 
 Figure~\ref{fig:aggregate-sum-sizes} shows the impact of the number of
   records aggregated on the saturating throughput of the extension-based
@@ -296,6 +294,8 @@ However, if that work is simple (like summation) it is always better to
 %  from the reduced round-trips unlike it's client-based counterpart.
 The gain in saturating throughput of the extension-based aggregation is
   always more than 50\%.
+
+\input {aggregate-mul.tex}
 
 For compute-intensive operations, the extra CPU cost of
 running extensions at the store can outweigh the gains of fewer RPCs.

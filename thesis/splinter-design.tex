@@ -262,6 +262,8 @@ In cases where unsafe code could provide a performance benefit, the store can
 \label{sec:db-iface}
 
 \begin{table}[t]
+\caption{Extensions interact with the store locally through an interface designed to
+  avoid data copying.}
 \centering
 \begin{tabular}[]{l c c}
 \toprule
@@ -283,8 +285,6 @@ In cases where unsafe code could provide a performance benefit, the store can
   \hspace{1em} Append data to response packet buffer. \\
 \bottomrule
 \end{tabular}
-\caption{Extensions interact with the store locally through an interface designed to
-  avoid data copying.}
 \label{table:db_interface}
 \end{table}
 

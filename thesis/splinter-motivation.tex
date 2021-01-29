@@ -72,6 +72,11 @@ The major challenge is that, at microsecond timescales, context switches and
 
 % Table of context switch times (pre and post KPTI).
 \begin{table}[t]
+\caption{Context switch overhead for different Intel Xeon
+	architectures as measured on CloudLab. Each number represents
+	the median of a million samples. Based on these measurements, we
+	chose 2.16~\us and 1.40~\us for the context switch overhead with
+	and without KPTI in our simulations.}
 \centering
 \begin{tabular}[]{l c c}
 \toprule
@@ -84,11 +89,6 @@ E5 2450, Sandy bridge   & 1.50            & 2.48 \\
 Gold 6142, Skylake      & 1.40            & 2.16 \\
 \bottomrule
 \end{tabular}
-\caption{Context switch overhead for different Intel Xeon
-	architectures as measured on CloudLab. Each number represents
-	the median of a million samples. Based on these measurements, we
-	chose 2.16~\us and 1.40~\us for the context switch overhead with
-	and without KPTI in our simulations.}
 \label{table:context_switch}
 \end{table}
 

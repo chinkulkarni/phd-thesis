@@ -154,7 +154,10 @@ PDFFILES	= figures/ramcloud-cluster.pdf				\
 		  graphs/compaction.pdf					\
 		  graphs/sampling.pdf					\
 		  graphs/views.pdf					\
-		  graphs/cloudLab.pdf
+		  graphs/cloudLab.pdf					\
+		  graphs/append-only.pdf				\
+		  graphs/memory-budget.pdf				\
+		  graphs/acceleration.pdf
 
 FIGFILES	= ramcloud-cluster.tex		\
 		  ramcloud-index.tex		\
@@ -204,7 +207,10 @@ FIGFILES	= ramcloud-cluster.tex		\
 		  compaction.tex		\
 		  sampling.tex			\
 		  views.tex			\
-		  cloudLab.tex
+		  cloudLab.tex			\
+		  inserts-scalability.tex	\
+		  memory-budget.tex		\
+		  acceleration.tex
 
 STYFILES	= amssymb.sty			\
 		  amssymbols.sty		\
@@ -242,6 +248,7 @@ TEXFILES        = abstract.tex			\
 		  shadowfax-faster.tex		\
 		  shadowfax-design.tex		\
 		  shadowfax-future.tex		\
+		  shadowfax-discussion.tex	\
 		  shadowfax-evaluation.tex	\
 		  shadowfax-related.tex		\
 		  shadowfax-conclusion.tex

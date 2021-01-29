@@ -63,8 +63,8 @@ To evaluate Shadowfax, we focused on six key questions:
   \S\ref{sec:eval:system-scalability} shows that when scaled across
   machines, Shadowfax continues to retain \faster's high throughput.
 %
-  A cluster consisting of 256 threads spread across 8 servers scales
-  linearly to 400~Mops/s while servicing 1024 client sessions.
+  A cluster consisting of 768 threads spread across 12 servers scales
+  linearly to 930~Mops/s while servicing 2304 client sessions.
 
 \end{description}
 
@@ -78,6 +78,9 @@ To evaluate Shadowfax, we focused on six key questions:
 \subsection{Experimental Setup}
 
 \begin{table}[t]
+\caption{Virtual machine details used to evaluate Shadowfax. This is the
+  E64\_v3 series available on Azure. Instances were configured to use
+  hardware accelerated networking.}
 \centering
 \begin{tabular}{p{0.15\columnwidth} p{0.75\columnwidth}}
 \toprule
@@ -97,9 +100,6 @@ To evaluate Shadowfax, we focused on six key questions:
 \\
 \bottomrule
 \end{tabular}
-\caption{Virtual machine details used to evaluate Shadowfax. This is the
-  E64\_v3 series available on Azure. Instances were configured to use
-  hardware accelerated networking.}
 \label{table:exptconfig}
 \end{table}
 
@@ -191,8 +191,6 @@ storage, where all encountered live are sent to the target.
 
 \input {shadowfax-scalability.tex}
 
-\input {seastar-scalability.tex}
-
 Shadowfax partitions request dispatching across threads for
 performance.
 %
@@ -240,6 +238,8 @@ Hardware acceleration offloads a significant portion of packet processing to a
 SmartNIC, allowing Shadowfax to maintain \faster{}'s scalability without
 relying on kernel-bypass networking (DPDK or RDMA).
 
+\input {seastar-scalability.tex}
+
 Next, we compared Shadowfax to Seastar
 (Figure~\ref{fig:thread-scalability-comparison}) using a uniform key access
 distribution; this is the only distribution that Seastar's client harness
@@ -256,9 +256,22 @@ independent indices to avoid synchronizing on records, but this forces threads
 to use inter-core message passing when they receive a request to route it to
 the thread that has that record.
 %
-Shadowfax's shared \faster instance is lock-free and minimizes cache footprint.
+To ensure that this is the case and that it is not the result of a bottleneck in
+Seastar's shared-nothing memcached implementation, we also measured the
+throughput of Seastar's when each request is a no-op (by disabling its index,
+see Seastar-NOP).
 %
-This leaves all synchronization and communication to the hardware
+This improves Seastar's throughput, but it is still 4$\times{}$ slower
+than Shadowfax on 64 threads.
+%
+This reinforces that simply attaching more scalable index like
+\faster to Seastar's networking and dispatch layers is not sufficient to get
+good performance; forced cross-core routing of requests is the bottleneck.
+
+In contrast, Shadowfax's design helps it exploit its shared \faster instance,
+which is lock-free and minimizes cache footprint.
+%
+It leaves all synchronization and communication to the hardware
 cache coherence, which is more efficient than explicit software
 coordination and only incurs high costs when real contention arises in data
 access patterns, rather than pessimistically synchronizing on all requests.
@@ -275,10 +288,43 @@ under skew, whereas Seastar's performance would decrease.
 %Shadowfax's throughput improves by 1.5x on moving from a uniform to a
 %Zipfian distribution.
 
+\input {acceleration.tex}
+
+In addition to Azure TCP, we also measured Shadowfax's scalability on
+Azure Infrc and on CloudLab~\cite{cloudlab}.
+%
+Figure~\ref{fig:acceleration} demonstrates that Shadowfax's throughput
+scales linearly on these platforms too.
+
+\subsubsection{Insert only workload}
+\label{sec:eval:append-only}
+
+\faster's \hlog is key to Shadowfax's high throughput since it allows
+records to be updated in-place.
+%
+However, in-place updates might not always be possible.
+%
+For workloads that are insert only, throughput will be limited by the
+rate at which records can be appended to the \hlog's tail.
+%
+Figure~\ref{fig:thread-scalability-append} presents scalability for a
+workload that inserts 250~million records into Shadowfax.
+%
+Throughput scales to 8~Mops/s on 16 threads.
+%
+Beyond 16 threads, increments to the \hlog's tail bottleneck the system,
+and throughput saturates.
+
+\input {inserts-scalability.tex}
+
 \subsection{Batching and Latency}
 \label{sec:eval:latency}
 
 \begin{table}[t]
+\caption{Shadowfax's latency at server saturation. On Azure's RDMA
+instances, it can maintain a median of
+40~\us while performing 126~Mops/s. With TCP,
+this increases to 1.3~ms.}
 \centering
 \begin{tabular}{p{0.20\columnwidth}
                 >{\centering\arraybackslash}m{0.20\columnwidth}
@@ -294,6 +340,9 @@ under skew, whereas Seastar's performance would decrease.
 \textbf{TCP} & 130 & 32 & 1300 & 1927
 \\
 \midrule
+\textbf{TCP, 1 KB} & 19 & 1 & 212 & 60
+\\
+\midrule
 \textbf{w/o Accel} & 75 & 32 & 2200 & 1927
 \\
 \midrule
@@ -304,16 +353,8 @@ under skew, whereas Seastar's performance would decrease.
 \\
 \bottomrule
 \end{tabular}
-\caption{Shadowfax's latency at server saturation. On Azure's RDMA
-instances, it can maintain a median of
-40~\us while performing 126~Mops/s. With TCP,
-this increases to 1.3~ms.}
 \label{table:latency}
 \end{table}
-
-\input {comparison.tex}
-
-\input {comparison-split.tex}
 
 Shadowfax clients send requests in pipelined batches to amortize
 network overheads and keep servers busy.
@@ -409,10 +450,61 @@ but we found Shadowfax to be CPU-bound in both cases.
 % \label{}
 % \end{figure}
 
+\subsection{Memory Budget}
+\label{sec:eval:dfs}
+
+\input {memory-budget.tex}
+
+% \begin{figure}[t]
+% \centering
+% \includegraphics[width=\columnwidth]{
+%     sofaster-data/memory-budget/memory-budget-disk.pdf}
+% \caption{}
+% \label{}
+% \end{figure}
+
+\faster's throughput eventually becomes limited by the SSD when the
+entire dataset does not fit in main memory.
+%
+Shadowfax's dispatch layer and client library ensure
+that this does not change when requests are generated over the cloud
+network.
+%
+To show this, we measured throughput under a decreasing main-memory
+budget for the \hlog.
+%
+We also measured the hit rate (the percentage of requests
+that were served from main-memory) during this experiment.
+%
+Figure~\ref{fig:memory} presents the results
+(please note the log scale).
+
+Overall, throughput drops as the memory budget decreases.
+%
+This is because the system needs to issue random IO to fetch records
+from SSD.
+%
+Once fetched, these records are appended to the \hlog's tail which
+flushes records at its head to SSD leading to more random IO during
+future requests.
+%
+For a uniform distribution, throughput begins to drop at
+80~GB.
+%
+Since all records are equally hot, even a small set on SSD hurts the hit
+rate and saturates SSD IOPS (Table~\ref{table:exptconfig}).
+%
+For a zipfian distribution, a smaller hot set ensures that this
+begins to happen only at 50~GB.
+%
+Throughput still drops because of low SSD IOPS
+(Azure throttled our VMs to 96,000 IOPS), decreasing to 3.5~Mops/s at 20~GB.
+%
+However, this is still 24$\times{}$ better than the uniform case which
+drops to 0.146~Mops/s.
+
 \subsection{Scale Out}
 \label{sec:eval:migration}
-
-\input {comparison-pending.tex}
 
 Shadowfax's migration transfers hash ranges between
 two machines and minimizes throughput impact while doing so.
@@ -437,11 +529,16 @@ In (b) and (c), servers are restricted to a memory budget of 60~GB,
 allowing us to compare the impact of indirection records (in (b)) against
 Rocksteady's scan-the-log approach (in (c)).
 
+\input {comparison.tex}
+
+\input {comparison-split.tex}
+
 \subsubsection{All-In-Memory Scale Out}
 
 Global cuts for ownership transfer avoid stalling cores at migration start, but
 the view change for this cut has some impact; request batches are invalidated,
-causing requests to be shuffled among sessions buffers at the client.
+causing requests to be shuffled among sessions buffers at the client
+(we calculated the number of such requests to be approximately 250,000).
 %
 This is visible in Figure~\ref{fig:migration} (a); throughput at the
 start of scale out (1 minute) briefly drops to 80~Mops/s.
@@ -462,6 +559,8 @@ serves more requests, causing system throughput to recover
 even before scale up completes.
 %
 Once scale up completes, system throughput increases by 10\% as expected.
+
+\input {comparison-pending.tex}
 
 Shadowfax's asynchronous client library helps limit the
 impact too.
@@ -486,6 +585,12 @@ Hence, practical migrations must be small and incremental to bound
 delay; however, throughput recovery is more important in Shadowfax's target
 applications whereas latency can be tolerated with asynchrony.
 
+We also ran the above experiment on a larger cluster of four 64 core machines
+on CloudLab~\cite{cloudlab} and obtained similar results; aggregate cluster
+throughput in that experiment was only impacted by 20\% in the worst case
+during migration, since throughput is only reduced at the source during
+migration.
+
 \subsubsection{Indirection Records}
 \label{sec:eval:migration:indir}
 
@@ -506,8 +611,6 @@ Hence, scale out takes 180~s, and the source and target remain inter-dependent
 for fault tolerance.
 
 \input {migration-size.tex}
-
-\input {compaction.tex}
 
 Indirection records solve this, completing migration in 32~s
 (Figure~\ref{fig:migration} (b)) and decoupling the source and target 6x faster.
@@ -551,14 +654,14 @@ Requests never pend after scale out with Rocksteady; however, its slow
 sequential scan causes requests to pend awaiting transmission from the source
 during its longer migration.
 
+\input {compaction.tex}
+
 We also measured the impact of fetching records from shared remote storage when
 resolving indirection records during compaction, but its throughput impact was
 neglible (Figure~\ref{fig:compaction}).
 
 \subsubsection{Sampled Records}
 \label{sec:eval:sampling}
-
-\input {sampling.tex}
 
 Shadowfax sends a small set of hot records to the target during ownership
 transfer, which allows the target to start servicing requests and recovering
@@ -580,11 +683,14 @@ been migrated over.
 At this point, nearly 30\% of scale out has completed, meaning that
 by sampling and shipping hot records during ownership transfer,
 the target starts contributing to system throughput 30\% faster.
+%
+Measurements on the source show that the \texttt{SAMPLING} phase lasted
+4~ms and had no noticeable overhead.
+
+\input {sampling.tex}
 
 \subsubsection{Ownership Validation}
 \label{sec:eval:migration:views}
-
-\input {views.tex}
 
 Views allow Shadowfax to fluidly move ownership of hash ranges between
 servers and help minimize the overhead of scale out on normal
@@ -608,10 +714,10 @@ throughput by 5\%.
 Similarly, if it always moves 0.2\% of a server's load (512 hash
 splits), then this improvement increases to 10\%.
 
+\input {views.tex}
+
 \subsection{System Scalability}
 \label{sec:eval:system-scalability}
-
-\input {cloudLab.tex}
 
 % Shadowfax's session's layer allows client threads to directly connect
 % with server threads.
@@ -619,27 +725,29 @@ splits), then this improvement increases to 10\%.
 In addition to retaining \faster's throughput within a machine,
 Shadowfax also retains throughput across machines.
 %
-To demonstrate this, we first hash partitioned 2 billion records across an
-Infrc cluster consisting of 256 threads spread across 8 servers on
-CloudLab~\cite{cloudlab} (each server had 32 threads, 64 GB RAM and
-one 40~Gbps Mellanox CX3 NIC).
+To demonstrate this, we first hash partitioned 2 billion records across a
+cluster consisting of 12 servers on
+CloudLab~\cite{cloudlab} (each server had 64 threads, 128 GB RAM and
+one 100~Gbps Mellanox CX5 NIC).
 %
 Next, we measured the total throughput of this cluster while varying the
 number
 of clients issuing requests (clients had the same hardware as servers).
 %
 Because each client thread opens up a session to one thread on each server,
-each client added in 32 sessions to each server and hence 256 sessions
-to the cluster (32 threads/client * 8 servers).
+each client added in 64 sessions to each server and hence 768 sessions
+to the cluster (64 threads/client * 12 servers).
 
-Figure~\ref{fig:system-scalability} shows that this cluster scales to
-perform 400~Mops/s.
+Figure~\ref{fig:system-scalability} shows the results.
 %
-This is approximately 1.5~Mops/s per server thread, and is close
-to \faster's 2~Mops/s/thread that we measured on the same hardware.
+"Unbalanced" represents results for a zipfian distribution under which
+cluster throughput scales to 890~Mops/s.
 %
-Workload skew is the primary reason for this small difference in performance;
-our dataset was partitioned into 8 coarse grained hash ranges, each of
+However, this throughput does not scale linearly when moving from two
+clients to three.
+%
+Workload skew is the primary reason for this small drop in performance;
+our dataset was split into 12 coarse grained hash ranges, each of
 which was assigned to one server.
 %
 This is insufficient to uniformly distribute load across servers, and
@@ -652,16 +760,27 @@ hence limits throughput scalability.
 % In fact, because these techniques tend to frequently rebalance load, its
 % scale-out protocol would be critical to them.
 %
-Shadowfax's design can help overcome this limitation; its migration
-protocol enables arbitrary, fine-grained hash splits, and allows them to
-be quickly moved between servers in response to load imbalances.
+Shadowfax's migration protocol is precisely designed to fix these
+imbalances via its fine-grained hash splits.
 %
-Likewise, its view based ownership validation ensures that a single
-server can own multiple such splits while maintaining high normal-case
-throughput.
+Load distributions can be monitored at runtime~\cite{slicer} to
+determine the ideal hash-splits.
+%
+Once these splits are known, they can be quickly migrated with low
+impact to throughput.
+%
+"Uniformly Balanced" (Figure~\ref{fig:system-scalability}) presents
+the upper bound improvement that could be achieved by doing so.
+%
+It represents a uniform distribution where load is uniformly distributed
+across all servers.
+%
+Cluster throughput improves by 40~Mops/s (4.5\%) to 930~Mops/s.
+
+\input {cloudLab.tex}
 
 Finally, beyond high throughput, this experiment also demonstrates that
 Shadowfax can scale to support a large number of client sessions
 (connections); at
-saturation, each server has 128 sessions open to it, resulting in a
-total of 1024 sessions across the cluster.
+saturation, each server has 192 sessions open to it, resulting in a
+total of 2304 sessions across the cluster.

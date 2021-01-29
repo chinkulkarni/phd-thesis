@@ -1,0 +1,45 @@
+\section{Discussion}
+\label{sec:discussion}
+
+Shadowfax's techniques are not restricted to KVSs and can be applied to
+other systems as well.
+%
+Its partitioned sessions can be used by \emph{stateful} cloud services
+to preserve throughput over the network.
+%
+In fact, our implementation of sessions is templated on the service; we
+used \faster for the purpose of this paper, but one could also use
+parameter servers, graph stores, model serving systems etc.
+
+Likewise, asynchronous global cuts can be used to scale-out these
+services while preserving throughput.
+%
+Since these cuts help propagate changes in ownership
+across cores and machines, they can also be used for other operations
+that involve changes in ownership like
+failure detection and crash recovery.
+
+In addition to scale-out, Shadowfax's migration protocol can also be
+used to scale-in a cluster.
+%
+Since this protocol is fast and has low impact, it can also be used to
+correctly partition records across servers.
+%
+In a distributed setting, partitioning becomes critical to
+performance; it is well known that pre-partitioning records between
+servers results in load imbalances, which significantly hurts
+throughput~\cite{dynamo,slicer}.
+%
+Migration allows Shadowfax to
+dynamically partition its hash space into arbitrary, fine-grained splits
+and
+avoid pre-partitioning.
+%
+Using load information available at runtime, it can first determine the ideal
+way to split its hash space across servers.
+%
+It can then quickly migrate these splits
+between them.
+%
+View validation helps too; a server can own many fine-grained splits and still
+serve 100~Mops/s during normal operation.

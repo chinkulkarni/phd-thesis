@@ -1,3 +1,10 @@
+\section{Conclusion}
+
+Low-latency in-memory stores are designed to tolerate the heaviest request
+loads. However, if they are too stripped down, they cannot deal with complex
+higher-level operations such as load (re)distribution,
+multi-tenancy, and expressive data models.
+%
 Rocksteady is a migration protocol for in-memory key-value stores that avoids
 the need for and overhead of in-advance state partitioning; it eliminates
 replication overhead from the migration fast-path; it exploits parallelism;

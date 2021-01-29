@@ -1,16 +1,60 @@
 \chapter{Conclusion}
 
-Low-latency in-memory stores are designed to tolerate the heaviest request
-loads. However, if they are too stripped down, they cannot deal with complex
-higher-level operations such as load (re)distribution,
-multi-tenancy, and expressive data models.
+Low-latency stores adopt simple, stripped-down designs that optimize
+for normal-case performance, and in the process, trade-off
+practicality and cost-effectiveness at cloud scale.
 
-This thesis demonstrates that this trade-off is unnecessary.
-It presents mechanisms for
-reconfiguration, multi-tenancy, and expressive data
-models that
-would make these systems more practical and
-efficient at cloud-scale while preserving their performance
-benefits.
+This thesis shows that this trade-off is unnecessary. Carefully
+leveraging and extending new and existing abstractions for scheduling,
+data sharing, lock-freedom, and isolation will yield feature-rich
+systems that
+retain their primary performance benefits at cloud scale.
 
-\input {rocksteady-conclusion.tex}
+Rocksteady is a migration protocol for in-memory key-value stores that avoids
+the need for and overhead of in-advance state partitioning; it eliminates
+replication overhead from the migration fast-path; it exploits parallelism;
+it exploits modern NIC hardware.  Rocksteady has a
+``pay-as-you-go'' approach that helps avoid overloading the source during migration
+using asynchronous batched on-demand pulls to shift load away from the source
+as parallel background transfers proceed.  In all, Rocksteady can move the entire DRAM
+of a modern data center machine in a few minutes while retaining \nnnth
+percentile tail latency of lesser than 250~\us.
+
+Shadowfax allows distributed key-value stores to
+span DRAM, SSDs, and cloud blob storage transparently.
+%
+Its unique approach avoids cross-core coordination during
+regular operation and data migration both in its indexing and network
+interactions.
+%
+Instead of partitioning data among cores to avoid synchronization on record
+accesses, Shadowfax partitions network
+sessions across cores and shares its lock-free hash index and log-structured
+record heap among them.
+%
+This risks contention when some records are hot and frequently
+mutated, but this is more than offset by avoiding software-level
+inter-core request forwarding or routing within server VMs.
+%
+In contrast to totally-ordered or stop-the-world approaches used by most
+systems, cores in Shadowfax avoid stalling to synchronize with one another, even when
+triggering complex operations like scale-out, which require
+defining clear before/after points in time among concurrent operations.
+%
+Instead, each core participating in these operations -- both at clients and
+servers -- independently decides a point in an asynchronous global
+cut that defines a boundary between operation sequences in these complex operations.
+%
+Compared to the state-of-the-art, it has 8$\times{}$ better throughput
+and scales out 6$\times{}$ faster.
+
+Splinter shows that soon legacy hardware isolation techniques will
+  limit resource provisioning granularity in the cloud, but it also provides a
+  way forward.
+Systems must evolve to support granular, low-overhead shipping of compute to
+    storage, and lightweight isolation between small compute tasks.
+Splinter works toward that evolution by discarding hardware isolation in
+  favor of static safety checks.
+As a result, it supports thousands of tenants that can all access data in tens of
+  microseconds while customizing storage operations to their needs and while
+  performing millions of remote operations on modern multicore machines.

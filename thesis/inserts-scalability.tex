@@ -1,0 +1,8 @@
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\columnwidth]{graphs/append-only.pdf}
+\caption{For an insert-only workload, Shadowfax's throughput is
+    limited by the rate at which \faster's log tail can be incremented.
+    Throughput scales to 8~Mops/s on 16 threads and then saturates.}
+\label{fig:thread-scalability-append}
+\end{figure}
