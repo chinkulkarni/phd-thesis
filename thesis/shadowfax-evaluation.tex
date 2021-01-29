@@ -268,6 +268,8 @@ This reinforces that simply attaching more scalable index like
 \faster to Seastar's networking and dispatch layers is not sufficient to get
 good performance; forced cross-core routing of requests is the bottleneck.
 
+\input {acceleration.tex}
+
 In contrast, Shadowfax's design helps it exploit its shared \faster instance,
 which is lock-free and minimizes cache footprint.
 %
@@ -287,8 +289,6 @@ under skew, whereas Seastar's performance would decrease.
 %Because it avoids such imbalances and uses a highly optimized index,
 %Shadowfax's throughput improves by 1.5x on moving from a uniform to a
 %Zipfian distribution.
-
-\input {acceleration.tex}
 
 In addition to Azure TCP, we also measured Shadowfax's scalability on
 Azure Infrc and on CloudLab~\cite{cloudlab}.
@@ -594,6 +594,8 @@ migration.
 \subsubsection{Indirection Records}
 \label{sec:eval:migration:indir}
 
+\input {migration-size.tex}
+
 With a 60~GB memory budget, some records to be migrated are on the source's
 SSD.
 %
@@ -609,8 +611,6 @@ and takes 165~s to complete.
 %
 Hence, scale out takes 180~s, and the source and target remain inter-dependent
 for fault tolerance.
-
-\input {migration-size.tex}
 
 Indirection records solve this, completing migration in 32~s
 (Figure~\ref{fig:migration} (b)) and decoupling the source and target 6x faster.
@@ -634,6 +634,8 @@ entry, totaling 11~GB here.
 The larger migration takes 18~s longer than Rocksteady's in-memory phase, but it
 decreases the total duration of migration by 150~s.
 
+\input {compaction.tex}
+
 After migration, requests that hit indirection records at the
 target cause remote accesses to shared cloud storage.
 %
@@ -653,8 +655,6 @@ pend on access to remote shared storage.
 Requests never pend after scale out with Rocksteady; however, its slow
 sequential scan causes requests to pend awaiting transmission from the source
 during its longer migration.
-
-\input {compaction.tex}
 
 We also measured the impact of fetching records from shared remote storage when
 resolving indirection records during compaction, but its throughput impact was

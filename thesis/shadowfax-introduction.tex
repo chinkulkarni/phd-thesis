@@ -97,7 +97,7 @@ Compared to the state-of-the-art, it has 8$\times{}$ better throughput (than
 Seastar+memcached~\cite{seastar}) and scales out 6$\times{}$ faster (than
 Rocksteady~\cite{rocksteady}).
 
-In this paper, we describe and evaluate three key pieces of Shadowfax that
+In this chapter, we describe and evaluate three key pieces of Shadowfax that
 eliminate coordination throughout the client- and server-side by eliminating
 cross-request and cross-core coordination:
 %
@@ -116,7 +116,8 @@ Instead, each core participating in these operations -- both at clients and
 servers -- independently decides a point in an \emph{asynchronous global
 cut} that defines a boundary between operation sequences in these complex operations.
 %
-In this paper, we extend asynchronous cuts from cores within one process~\cite{faster,cpr} to servers
+In this chapter, we extend asynchronous cuts from cores within one
+process~\cite{faster,cpr} to servers
 and clients in a cluster, and we show how they coordinate server
 and client threads (through partitioned sessions) by detailing
 their role in Shadowfax's low-coordination data migration and
@@ -177,7 +178,7 @@ inter-core request forwarding or routing is needed within server VMs.
 
 \end{description}
 
-The rest of the paper is organized as follows. We provide background on the FASTER
+The rest of the chapter is organized as follows. We provide background on the FASTER
 key-value store and its use of epochs within a machine (\S\ref{sec:fasterkv}). Next,
 we overview Shadowfax's design, including partitioned client
 sessions with global cuts and how they enable
@@ -208,4 +209,4 @@ cluster that ingests and indexes 930~Mops/s in total,
 %
 which, to the best of our knowledge, is the highest
 reported throughput for a distributed KVS till date. We finally cover
-related work~(\S\ref{sec:related}) and conclude the paper~(\S\ref{sec:conclude}).
+related work~(\S\ref{sec:related}) and conclude the chapter~(\S\ref{sec:conclude}).
