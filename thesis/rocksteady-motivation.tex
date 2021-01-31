@@ -8,8 +8,6 @@ second, but its focus is on low access latency.  End-to-end read and durable
 write operations take just 6~\us~and~15~\us,
 respectively, on our hardware (\S\ref{sec:reval}).
 
-\input {ramcloud-cluster.tex}
-
 Each server (Figure~\ref{fig:ramcloud-cluster}) operates as a \emph{master},
 which manages RAMCloud objects in its DRAM and services client requests, and a
 \emph{backup}, which stores redundant copies of objects from other masters on
@@ -41,8 +39,6 @@ and need not be co-located (Figure~\ref{fig:index}). Clients can issue multi-rea
 and multi-write requests that fetch or modify several objects on one server with
 a single request. They can also issue externally consistent and serializable
 distributed transactions~\cite{ramcloud-rifl}.
-
-\input {ramcloud-index.tex}
 
 %%K Two things: benefits of locality, inadequacy of existing approaches.
 %%K First: locality matters to both client and server performance.
@@ -95,8 +91,6 @@ issue requests to all of the involved machines in parallel. From the client's
 perspective, the response latency is similar, but the overall load
 induced on the cluster is significantly different.
 
-\input {ramcloud-colocation.tex}
-
 Figure~\ref{fig:colocation} explores this effect. It consists of a
 microbenchmark run with seven~servers and 14~client machines. Clients issue back-to-back
 multi-get operations evenly across the cluster, each for seven~keys at a time. In
@@ -129,8 +123,6 @@ splits and maximizing locality has a significant benefit, in this case, up to
 4.3$\times$.  Our findings echo recent trends in scale-out stores that
 replicate to minimize multi-get ``fan-out''~\cite{fb-memcache} or give users
 explicit control over data placement to exploit locality~\cite{spanner}.
-
-\input {index-motivation.tex}
 
 Load imbalance has a similar effect on another common case: indexes.
 %range-based secondary indexes.  RAMCloud's SLIK~\cite{ramcloud-slik} indexes
@@ -237,8 +229,6 @@ records into its log, re-replicates them, and updates its in-memory hash
 table, which serves as its primary key index. Only after all of the records
 have been transferred is tablet ownership switched from the source to
 the target.
-
-\input {migration-bottlenecks.tex}
 
 %K possible comparison question: Our old protocol eval was on an unloaded
 %K server, it should be slower with load.

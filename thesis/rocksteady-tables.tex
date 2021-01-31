@@ -1,0 +1,42 @@
+%%% Evaluation
+\begin{table}[t]
+\caption{Experimental cluster configuration. The evaluation was
+carried out on a 24 node c6220 cluster on CloudLab. Hyperthreading was
+disabled on all nodes. Of the 24 nodes, 1
+ran the coordinator, 8 ran one client each, and the rest ran
+RAMCloud servers.
+}
+\centering
+\small
+\begin{tabular}{p{0.15\columnwidth} p{0.75\columnwidth}}
+\toprule
+\textbf{CPU} & 2$\times$Xeon E5-2650v2~2.6~GHz,\\
+        & 16 cores in total after disabling hyperthreading
+\\
+\midrule
+\textbf{RAM} & 64~GB 1.86~GHz DDR3
+\\
+%\midrule
+%\textbf{Disks} & 4 x WDC WD5003ABYX-18WERA0 (500GB, 7200 rpm, RAID5)
+%\\
+\midrule
+\textbf{NIC} & Mellanox FDR CX3 Single port (40~Gbps)
+\\
+\midrule
+\textbf{Switch} & 36 port Mellanox SX6036G (in Ethernet mode)
+\\
+\midrule
+\textbf{OS} & Ubuntu 15.04, Linux 3.19.0-16,\\
+        & DPDK~16.11, MLX4~PMD, 1$\times$1~GB~Hugepage
+\\
+\bottomrule
+\end{tabular}
+%Ports
+%on the Mellanox MX354A NICs and SX6036G switch were flipped to Ethernet
+%mode.
+%The DPDK poll mode driver was configured to use the 40 Gbps port
+%on the NIC.
+%Cloudlab also provides a 1Gbps control network which was
+%used for experiment management.}
+\label{table:exptconfig}
+\end{table}

@@ -62,8 +62,6 @@ source and the target to control the migration rate, fitting with our need
 for load-adaptive migration and ensuring that cores are never idle unless
 migration must be throttled to meet SLAs.
 
-\input {rocksteady-overview.tex}
-
 %K Migration flow overview.
 The heart of Rocksteady's fast migration is its pipelined and
 parallelized record transfer. Figure~\ref{fig:migration-overview} gives an
@@ -192,8 +190,6 @@ the last key returned for each pull, but this has the same problem.  Neither
 approach allows parallel \pull processing on the source, which is
 crucial for fast migration.
 
-\input {rocksteady-source.tex}
-
 The target solves this problem by logically {\em partitioning} the source's key-hash
 space. It only issues concurrent \pulls if they are for disjoint regions of the
 source's key-hash space (and, consequently, disjoint regions of the source's
@@ -224,8 +220,6 @@ as an asynchronous continuation on the target's dispatch
 core~\cite{stutsman:dcft}; it starts \pulls, checks for their
 completion, and enqueues tasks that replay (locally process) records for \pulls
 that have completed.
-
-\input {rocksteady-target.tex}
 
 At the start of migration, the manager logically divides the source
 server's key-hash

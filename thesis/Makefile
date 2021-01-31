@@ -235,6 +235,8 @@ TEXFILES        = abstract.tex			\
 		  rocksteady-discussion.tex	\
 		  rocksteady-related.tex	\
 		  rocksteady-conclusion.tex	\
+		  rocksteady-tables.tex		\
+		  rocksteady-figures.tex	\
 		  splinter.tex			\
 		  splinter-introduction.tex	\
 		  splinter-motivation.tex	\

@@ -1,48 +1,6 @@
 \section{Evaluation}
 \label{sec:reval}
 
-\begin{table}[t]
-\caption{Experimental cluster configuration. The evaluation was
-carried out on a 24 node c6220 cluster on CloudLab. Hyperthreading was
-disabled on all nodes. Of the 24 nodes, 1
-ran the coordinator, 8 ran one client each, and the rest ran
-RAMCloud servers.
-}
-\centering
-\small
-\begin{tabular}{p{0.15\columnwidth} p{0.75\columnwidth}}
-\toprule
-\textbf{CPU} & 2$\times$Xeon E5-2650v2~2.6~GHz,\\
-        & 16 cores in total after disabling hyperthreading
-\\
-\midrule
-\textbf{RAM} & 64~GB 1.86~GHz DDR3
-\\
-%\midrule
-%\textbf{Disks} & 4 x WDC WD5003ABYX-18WERA0 (500GB, 7200 rpm, RAID5)
-%\\
-\midrule
-\textbf{NIC} & Mellanox FDR CX3 Single port (40~Gbps)
-\\
-\midrule
-\textbf{Switch} & 36 port Mellanox SX6036G (in Ethernet mode)
-\\
-\midrule
-\textbf{OS} & Ubuntu 15.04, Linux 3.19.0-16,\\
-        & DPDK~16.11, MLX4~PMD, 1$\times$1~GB~Hugepage
-\\
-\bottomrule
-\end{tabular}
-%Ports
-%on the Mellanox MX354A NICs and SX6036G switch were flipped to Ethernet
-%mode.
-%The DPDK poll mode driver was configured to use the 40 Gbps port
-%on the NIC.
-%Cloudlab also provides a 1Gbps control network which was
-%used for experiment management.}
-\label{table:exptconfig}
-\end{table}
-
 To evaluate Rocksteady, we focused on five key questions:
 \begin{description}
 \item[How fast can Rocksteady go and meet tight SLAs?]
@@ -98,10 +56,6 @@ To evaluate Rocksteady, we focused on five key questions:
 %K or even 3:5:1 blocking factor or the topology?
 %K Manual mentions 4x SATA disks in a RAID5 config
 %K Our processors are 8 cores and 16 threads
-
-\input {rocksteady-throughput}
-
-\input {rocksteady-latency}
 
 All evaluation was done on a 24~server Dell c6220~cluster on the CloudLab
 testbed~\cite{cloudlab} (Table~\ref{table:exptconfig}).  RAMCloud is transport
@@ -212,8 +166,6 @@ expect the \nnnth percentile to be similar to Rocksteady.
 \subsection{Load Impact}
 \label{sec:eval-load}
 
-\input {rocksteady-dispatch}
-
 Figure~\ref{fig:load} (a) shows Rocksteady immediately equalizes
 dispatch load on the source and target. Worker and dispatch load on the
 target jumps immediately when migration starts, offloading the source.
@@ -232,8 +184,6 @@ b) the migration manager is asynchronous and requires little CPU.
 
 %Figure~\ref{fig:load} (b) shows that without \priopulls the source and target remain at elevated load longer after migration, since pent up client
 %
-
-\input {priopull-skew.tex}
 
 A key goal of Rocksteady is to shift load quickly from the source to the
 target. Most workloads exhibit some skew, but the extent of that skew impacts
@@ -254,10 +204,6 @@ on the source regardless of the skew.
 
 \subsection{Asynchronous Batched Priority Pulls}
 \label{sec:eval-priopulls}
-
-\input {only-priority}
-
-\input {only-priority-dispatch}
 
 Figures~\ref{fig:batching-lat} and~\ref{fig:batching-load} compare
 asynchronous batched \priopulls with the na\"{i}ve, synchronous approach
@@ -282,8 +228,6 @@ on-demand.
 
 \subsection{Pull and Replay Scalability}
 \label{sec:eval-replay}
-
-\input {rocksteady-scalability}
 
 Parallel and pipelined pulls and replay are essential to migration speed that
 interleaves with normal-case request processing. The microbenchmark shown in
