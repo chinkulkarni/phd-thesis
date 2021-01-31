@@ -210,7 +210,8 @@ FIGFILES	= ramcloud-cluster.tex		\
 		  cloudLab.tex			\
 		  inserts-scalability.tex	\
 		  memory-budget.tex		\
-		  acceleration.tex
+		  acceleration.tex		\
+		  aggregate-code.tex
 
 STYFILES	= amssymb.sty			\
 		  amssymbols.sty		\
@@ -245,6 +246,8 @@ TEXFILES        = abstract.tex			\
 		  splinter-evaluation.tex	\
 		  splinter-related.tex		\
 		  splinter-conclusion.tex	\
+		  splinter-tables.tex		\
+		  splinter-figures.tex		\
 		  shadowfax.tex			\
 		  shadowfax-introduction.tex	\
 		  shadowfax-faster.tex		\

@@ -11,8 +11,6 @@ These extensions can define new operations on the tenant's data, including
 Each tenant-provided extension is exported over the network, so
   a tenant can remotely invoke the procedures it has installed into the store.
 
-\input {splinter-arch.tex}
-
 Tenants send requests to a Splinter store over the
   network using kernel bypass (\textcircled{\footnotesize{2}}).
 Splinter currently only supports a simple, custom UDP-based RPC
@@ -261,33 +259,6 @@ In cases where unsafe code could provide a performance benefit, the store can
 \subsection{Store Extension Interface}
 \label{sec:db-iface}
 
-\begin{table}[t]
-\caption{Extensions interact with the store locally through an interface designed to
-  avoid data copying.}
-\centering
-\begin{tabular}[]{l c c}
-\toprule
-\textbf{Store Operations for Extensions} \\
-\midrule
-\textbf{get}(table: u64, key: \&[u8]) $\rightarrow$ Option$\langle$ReadBuf$\rangle$ \\
-  \hspace{1em} Return view of current value stored under $\langle$\texttt{table}, \texttt{key}$\rangle$. \\
-  \\
-\textbf{alloc}(table: u64, key: \&[u8], len: u64) $\rightarrow$ Option$\langle$WriteBuf$\rangle$ \\
-  \hspace{1em} Get buffer to be filled and then \texttt{put} under $\langle$\texttt{table}, \texttt{key}$\rangle$. \\
-  \\
-\textbf{put}(buf: WriteBuf) $\rightarrow$ bool \\
-  \hspace{1em} Insert filled buffer allocated with \texttt{alloc}. \\
-  \\
-\textbf{args}() $\rightarrow$ \&[u8] \\
-  \hspace{1em} Return a slice to procedure args in request receive buffer. \\
-  \\
-\textbf{resp}(data: \&[u8]) \\
-  \hspace{1em} Append data to response packet buffer. \\
-\bottomrule
-\end{tabular}
-\label{table:db_interface}
-\end{table}
-
 The interface that extensions use on the server to interact with stored records is similar to
   the external, remote interface that clients use in any conventional key-value
   store (Table~\ref{table:db_interface}).
@@ -361,39 +332,6 @@ On each extension procedure invocation, the store pre-populates the response
   headers.
 All response buffers are pre-registered with the NIC for transmission.
 
-\begin{figure}[t]
-\centering
-\begin{lstlisting}[language=C++]
-fn aggregate(db: Rc<DB>) {
-  let mut sum = 0u64;
-  let mut status = SUCCESS;
-  let key = &db.args()[..size_of::<u64>()];
-
-  if let Some(key_lst) = db.get(TBL, key) {
-    // Iterate KLEN sub-slices from key_lst
-    for k in key_lst.read().chunks(KLEN) {
-      if let Some(v) = db.get(TBL, k) {
-        sum += v.read()[0] as u64;
-      } else {
-        status = INVALIDKEY;
-        break;
-      }
-    }
-  } else {
-    status = INVALIDARG;
-  }
-  db.resp(pack(&status));
-  db.resp(pack(&sum));
-}
-\end{lstlisting}
-\caption{Example aggregate extension code. The extension takes a key as
-input (directly from a request receive buffer), looks it up in the
-store, and gets a reference to a value that contains a list of keys. It
-looks up each of those keys, it sums their values, and directly appends
-the result to a response buffer.}
-\label{lst:aggregate}
-\end{figure}
-
 Extensions call \texttt{get(table, key)}, and they receive back a reference to
   the underlying portion of the table heap that contains the value associated
   with \texttt{key}.
@@ -407,8 +345,6 @@ Extensions can compute over the value or many values concurrently (by calling \t
 Once the extension procedure has populated the response buffer, Intel's
   DDIO~\cite{ddio} transmits the data directly from the L1 cache, which avoids
   the cost of memory access for DMA of stored data.
-
-\input {tao-extension.tex}
 
 Listing~\ref{lst:aggregate} and Figure~\ref{fig:tao} show an example of how
   this works for a simple extension that sums up a set of values stored under
@@ -624,8 +560,6 @@ Each receive queue is paired to a single task dispatcher owned by a
 worker thread (pinned to a core).
 As a result, tenants can steer requests to specific cores by placing their
   tenant id in the UDP destination port field.
-
-\input {work-stealing.tex}
 
 However, this approach alone can leave cores idle under imbalance, and, as a multi-tenant
   store, it is important for the system to deliver good resource utilization.

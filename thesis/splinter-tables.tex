@@ -1,0 +1,76 @@
+%%% Motivation
+\begin{table}[t]
+\caption{Context switch overhead for different Intel Xeon
+	architectures as measured on CloudLab. Each number represents
+	the median of a million samples. Based on these measurements, we
+	chose 2.16~\us and 1.40~\us for the context switch overhead with
+	and without KPTI in our simulations.}
+\centering
+\begin{tabular}[]{l c c}
+\toprule
+\textbf{Xeon Architecture} & \multicolumn{2}{c}{\textbf{Context switch delay (\us)}} \\
+\cline{2-3}
+             & \textbf{Pre KPTI} & \textbf{KPTI} \\
+\midrule
+D-1548, Broadwell       & 1.60            & 2.40 \\
+E5 2450, Sandy bridge   & 1.50            & 2.48 \\
+Gold 6142, Skylake      & 1.40            & 2.16 \\
+\bottomrule
+\end{tabular}
+\label{table:context_switch}
+\end{table}
+
+%%% Design
+\begin{table}[t]
+\caption{Extensions interact with the store locally through an interface designed to
+  avoid data copying.}
+\centering
+\begin{tabular}[]{l c c}
+\toprule
+\textbf{Store Operations for Extensions} \\
+\midrule
+\textbf{get}(table: u64, key: \&[u8]) $\rightarrow$ Option$\langle$ReadBuf$\rangle$ \\
+  \hspace{1em} Return view of current value stored under $\langle$\texttt{table}, \texttt{key}$\rangle$. \\
+  \\
+\textbf{alloc}(table: u64, key: \&[u8], len: u64) $\rightarrow$ Option$\langle$WriteBuf$\rangle$ \\
+  \hspace{1em} Get buffer to be filled and then \texttt{put} under $\langle$\texttt{table}, \texttt{key}$\rangle$. \\
+  \\
+\textbf{put}(buf: WriteBuf) $\rightarrow$ bool \\
+  \hspace{1em} Insert filled buffer allocated with \texttt{alloc}. \\
+  \\
+\textbf{args}() $\rightarrow$ \&[u8] \\
+  \hspace{1em} Return a slice to procedure args in request receive buffer. \\
+  \\
+\textbf{resp}(data: \&[u8]) \\
+  \hspace{1em} Append data to response packet buffer. \\
+\bottomrule
+\end{tabular}
+\label{table:db_interface}
+\end{table}
+
+%%% Evaluation
+\begin{table}[t]
+\caption{Experimental configuration. Evaluation used
+one machine as server and one as client.
+Only the NIC-local CPU socket was used on the server.}
+\centering
+\begin{tabular}{p{0.15\columnwidth} p{0.75\columnwidth}}
+\toprule
+\textbf{CPU} & 2$\times$Xeon E5-2640v4~2.40~GHz\\
+  & 10 cores (20 hardware threads) per socket
+\\
+\midrule
+\textbf{RAM} & 1~TB 2400~MHz DDR4
+\\
+\midrule
+\textbf{NIC} & Mellanox CX5, 40~Gbps Ethernet
+\\
+\midrule
+\textbf{OS} & Ubuntu 16.04, Linux 4.4.0-116,\\
+        & DPDK~17.08, 16$\times$1~GB~Hugepages,\\
+        & Rust 1.28.0-nightly
+\\
+\bottomrule
+\end{tabular}
+\label{table:setup}
+\end{table}

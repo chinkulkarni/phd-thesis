@@ -1,0 +1,32 @@
+\begin{figure}[t]
+\centering
+\begin{lstlisting}[language=C++]
+fn aggregate(db: Rc<DB>) {
+  let mut sum = 0u64;
+  let mut status = SUCCESS;
+  let key = &db.args()[..size_of::<u64>()];
+
+  if let Some(key_lst) = db.get(TBL, key) {
+    // Iterate KLEN sub-slices from key_lst
+    for k in key_lst.read().chunks(KLEN) {
+      if let Some(v) = db.get(TBL, k) {
+        sum += v.read()[0] as u64;
+      } else {
+        status = INVALIDKEY;
+        break;
+      }
+    }
+  } else {
+    status = INVALIDARG;
+  }
+  db.resp(pack(&status));
+  db.resp(pack(&sum));
+}
+\end{lstlisting}
+\caption{Example aggregate extension code. The extension takes a key as
+input (directly from a request receive buffer), looks it up in the
+store, and gets a reference to a value that contains a list of keys. It
+looks up each of those keys, it sums their values, and directly appends
+the result to a response buffer.}
+\label{lst:aggregate}
+\end{figure}

@@ -29,9 +29,6 @@ Applications are usually \textsl{disaggregated} into a storage and
   compute tier, so these extra \texttt{get}s move data over the network
   and induce stalls for each request.
 
-% Tree traversal.
-\input {tree-traversal.tex}
-
 Figure~\ref{fig:kv-tree-traversal} illustrates this problem with a
 storage client that traverses data logically organized as a tree.
 The client must first issue
@@ -70,28 +67,6 @@ Multi-tenancy at the storage layer makes running extensions challenging;
 The major challenge is that, at microsecond timescales, context switches and
     data copying across isolation boundaries significantly hurt performance.
 
-% Table of context switch times (pre and post KPTI).
-\begin{table}[t]
-\caption{Context switch overhead for different Intel Xeon
-	architectures as measured on CloudLab. Each number represents
-	the median of a million samples. Based on these measurements, we
-	chose 2.16~\us and 1.40~\us for the context switch overhead with
-	and without KPTI in our simulations.}
-\centering
-\begin{tabular}[]{l c c}
-\toprule
-\textbf{Xeon Architecture} & \multicolumn{2}{c}{\textbf{Context switch delay (\us)}} \\
-\cline{2-3}
-             & \textbf{Pre KPTI} & \textbf{KPTI} \\
-\midrule
-D-1548, Broadwell       & 1.60            & 2.40 \\
-E5 2450, Sandy bridge   & 1.50            & 2.48 \\
-Gold 6142, Skylake      & 1.40            & 2.16 \\
-\bottomrule
-\end{tabular}
-\label{table:context_switch}
-\end{table}
-
 To quantify the overhead of hardware isolation, we simulated an
   8-core multi-tenant store that isolates extensions using
   processes while varying the numbers of tenants making requests to it.
@@ -117,9 +92,6 @@ all tenants make the same number of requests. The results are similar
 The simulator is also optimistic; whenever a request is made and an idle core
   is available at the store that last processed a request from the same tenant,
   the isolation cost is assumed to be zero.
-
-% Simulator graph (throughput vs number of tenants).
-\input {simulator.tex}
 
 Figure~\ref{fig:simulator} presents simulated throughput at different
 tenant densities. The baseline represents an upper bound where
