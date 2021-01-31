@@ -220,8 +220,6 @@ per [4] has the details on these and other concurrency challenges.
 \subsection{Partitioned Dispatch \& Sessions}
 \label{sec:dispatch}
 
-\input {server.tex}
-
 Shadowfax's network request dispatching mechanism and client library need to be
 capable of saturating servers inside \faster.
 %
@@ -274,8 +272,6 @@ server threads.
 
 \subsubsection{Client Sessions}
 \label{sec:sessions}
-
-\input {client.tex}
 
 Shadowfax's partitioned dispatch/shared data approach also extends to
 clients.
@@ -470,7 +466,6 @@ However, this step is not straightforward; keeping with
 Shadowfax's design principle, it must be achieved without stalling
 server threads.
 %
-\input {ownership-transfer.tex}
 %
 %
 Within the server, this view change is propagated asynchronously across
@@ -611,8 +606,6 @@ Migration is driven by the source as we outline below (Figure~\ref{fig:source}):
 %
 %We outline the source's phases below:% (Figure~\ref{fig:source}):
 
-\input {source.tex}
-
 \begin{description}
 \item[Sampling:]
 Initiated by receiving a \texttt{Migrate()} RPC from a client, whereupon the source
@@ -727,8 +720,6 @@ normal operation.
 \label{table:source}
 \end{table}
 \fi
-
-\input {target.tex}
 
 The target is mostly passive during migration; most of its phase changes are
 triggered by source RPCs (Figure~\ref{fig:target}).
@@ -975,8 +966,6 @@ shared tier using the contained address and log identifier, inserts it
 into its hash table, and then completes the request.
 
 \subsection{Cleaning Up Indirection Records}
-
-\input {indirection.tex}
 
 Migrations can accumulate indirection records between server logs
 for records that are never accessed (Figure~\ref{fig:dfs}).

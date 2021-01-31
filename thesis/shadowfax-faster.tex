@@ -13,8 +13,6 @@ Specifically, Shadowfax extends \faster's asynchronous
 cuts, which help avoid coordination, and its \hlog, which transparently
 spans DRAM and SSD.
 
-\input {hybrid-log.tex}
-
 In most ways, \faster works like most durable hash table libraries.
 %
 It includes a lock-free hash table divided into cacheline-sized buckets
@@ -142,8 +140,6 @@ Eventually, when all threads have observed the update, the records between the o
 read-offsets have become read-only, and a function is triggered to write the pages to disk. Using the same
 mechanism, addresses for which threads do not yet agree on the mutability status can be handled efficiently.
 Figure~\ref{fig:cut} shows this process in action.
-
-\input {global-cut.tex}
 
 \iffalse
 \faster's checkpointing protocol serves as a great example of this~\cite{cpr}.

@@ -253,7 +253,9 @@ TEXFILES        = abstract.tex			\
 		  shadowfax-discussion.tex	\
 		  shadowfax-evaluation.tex	\
 		  shadowfax-related.tex		\
-		  shadowfax-conclusion.tex
+		  shadowfax-conclusion.tex	\
+		  shadowfax-tables.tex		\
+		  shadowfax-figures.tex
 
 THESIS		= chinmay-thesis
 
