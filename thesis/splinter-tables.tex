@@ -5,10 +5,11 @@
 	the median of a million samples. Based on these measurements, we
 	chose 2.16~\us and 1.40~\us for the context switch overhead with
 	and without KPTI in our simulations.}
+\vspace{21pt}
 \centering
-\begin{tabular}[]{l c c}
+\begin{tabular}[]{p{0.50\columnwidth} p{0.21\columnwidth} p{0.21\columnwidth}}
 \toprule
-\textbf{Xeon Architecture} & \multicolumn{2}{c}{\textbf{Context switch delay (\us)}} \\
+\textbf{Xeon Architecture} & \multicolumn{2}{l}{\textbf{Context switch delay (\us)}} \\
 \cline{2-3}
              & \textbf{Pre KPTI} & \textbf{KPTI} \\
 \midrule
@@ -24,8 +25,9 @@ Gold 6142, Skylake      & 1.40            & 2.16 \\
 \begin{table}[t]
 \caption{Extensions interact with the store locally through an interface designed to
   avoid data copying.}
+\vspace{21pt}
 \centering
-\begin{tabular}[]{l c c}
+\begin{tabular}[]{p{0.98\columnwidth}}
 \toprule
 \textbf{Store Operations for Extensions} \\
 \midrule
@@ -53,8 +55,9 @@ Gold 6142, Skylake      & 1.40            & 2.16 \\
 \caption{Experimental configuration. Evaluation used
 one machine as server and one as client.
 Only the NIC-local CPU socket was used on the server.}
+\vspace{21pt}
 \centering
-\begin{tabular}{p{0.15\columnwidth} p{0.75\columnwidth}}
+\begin{tabular}{p{0.25\columnwidth} p{0.70\columnwidth}}
 \toprule
 \textbf{CPU} & 2$\times$Xeon E5-2640v4~2.40~GHz\\
   & 10 cores (20 hardware threads) per socket
