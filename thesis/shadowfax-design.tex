@@ -606,8 +606,8 @@ Migration is driven by the source as we outline below (Figure~\ref{fig:source}):
 %
 %We outline the source's phases below:% (Figure~\ref{fig:source}):
 
-\begin{description}
-\item[Sampling:]
+\begin{enumerate}
+\item {\bf Sampling:}
 Initiated by receiving a \texttt{Migrate()} RPC from a client, whereupon the source
 \begin{enumerate}
   \item atomically remaps ownership of hash ranges from the source to the
@@ -627,7 +627,7 @@ To ensure that sampled records only get copied once, the source only copies
 records whose address is lower than the \hlog tail address at the start of this
 phase.
 
-\item[Prepare:]
+\item {\bf Prepare:}
 Initiated after all source threads have completed the Sampling phase.
 %
 The source sends a \texttt{PrepForTransfer()} RPC to the target asynchronously,
@@ -638,7 +638,7 @@ ranges (since some clients may discover the new views) and
 services them after the source indicates that it has stopped servicing
 requests in the old view.
 
-\item[Transfer:]
+\item {\bf Transfer:}
 Initiated after all source threads have completed the Prepare phase.
 %
 The source moves into its new view and stops servicing requests on the
@@ -655,7 +655,7 @@ the migrating hash ranges.
 This also triggers the target to service any requests pending from the
 Target-Prepare phase.
 
-\item[Migrate:]
+\item {\bf Migrate:}
 Initiated after all source threads have completed the Transfer phase.
 %
 The source uses thread-local sessions to send records in the migrating hash ranges
@@ -667,7 +667,7 @@ records collected from the source's hash table to the target.
 Each thread works on independent, non-overlapping hash table regions, avoiding
 contention.
 
-\item[Complete:]
+\item {\bf Complete:}
 Initiated after all source threads have completed the Migrate phase.
 %
 The source sends a \texttt{CompleteMigration()} RPC asynchronously, moving the target to the Target-Complete phase.
@@ -682,7 +682,7 @@ the source sets a flag in the metadata store
 indicating that its role in migration is complete, and it returns to
 normal operation.
 
-\end{description}
+\end{enumerate}
 
 \iffalse
 \begin{table}[t]

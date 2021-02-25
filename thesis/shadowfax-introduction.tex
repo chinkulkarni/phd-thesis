@@ -1,4 +1,4 @@
-\section{Introduction}
+% \section{Introduction}
 
 %{\color{red} Notes from call with Badrish:
 %Move 3 goals to end of intro, rewrite into short narrative form instead of
@@ -99,8 +99,8 @@ In this chapter, we describe and evaluate three key pieces of Shadowfax that
 eliminate coordination throughout the client- and server-side by eliminating
 cross-request and cross-core coordination:
 %
-\begin{description}
-\item[Low-cost Coordination via Global Cuts:]
+\begin{enumerate}
+\item {\bf Low-cost Coordination via Global Cuts:}
 % All of the major components of Shadowfax including indexing, request
 % dispatching, durability, checkpointing/recovery, and migration center
 % around a key mechanism: asynchronous \emph{global cuts}~\cite{faster,cpr,scalog}.
@@ -137,7 +137,7 @@ reconfiguration protocol.
 %This allows the index to be shared under normal operation
 %while avoiding serial bottlenecks during scale out.
 
-\item[End-to-end Asynchronous Clients:]
+\item {\bf End-to-end Asynchronous Clients:}
 All requests from a client on one machine to Shadowfax are asynchronous with
 respect to one another all the way throughout Shadowfax's client- and
 server-side network submission/completion paths and servers' indexing and
@@ -160,7 +160,7 @@ acceleration is chosen.
 % Our experiments show that this combination works well for both linux TCP
 % and two-sided RDMA.
 
-\item[Partitioned Sessions, Shared Data:]
+\item {\bf Partitioned Sessions, Shared Data:}
 Asynchronous requests eliminate blocking {\em between requests} within a client, but
 maintaining high throughput also requires minimizing coordination
 costs {\em between cores} at clients and servers.
@@ -174,7 +174,7 @@ This risks contention when some records are hot and frequently
 mutated, but this is more than offset by the fact that no software-level
 inter-core request forwarding or routing is needed within server VMs.
 
-\end{description}
+\end{enumerate}
 
 The rest of the chapter is organized as follows. We provide background on the FASTER
 key-value store and its use of epochs within a machine (\S\ref{sec:fasterkv}). Next,

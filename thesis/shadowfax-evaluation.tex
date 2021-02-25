@@ -2,25 +2,25 @@
 \label{sec:eval}
 
 To evaluate Shadowfax, we focused on six key questions:
-\begin{description}
-\item[Does it preserve \faster{}'s performance?]
+\begin{enumerate}
+\item {\bf Does it preserve \faster{}'s performance?}
   \S\ref{sec:eval:clients} shows that Shadowfax preserves \faster{}'s
   scalability and adds in negligible overhead.
 %
   Its throughput scales to 130~Mops/s on 64~threads on a VM even when using
   Linux TCP.
 
-\item[How does it compare to an alternate design?]
+\item {\bf How does it compare to an alternate design?}
   \S\ref{sec:eval:clients} shows that Shadowfax performs 4x better than
   a state-of-the-art approach that partitions dispatch as well as data.
 
-\item[Does it provide low latency?]
+\item {\bf Does it provide low latency?}
   \S\ref{sec:eval:latency} shows that while serving a throughput of 130~Mops/s,
   Shadowfax's median latency is 1.3~ms on Linux TCP.
 %
   Using two-sided RDMA decreases this to 40~\us.
 
-\item[Can it maintain high throughput during scale out?]
+\item {\bf Can it maintain high throughput during scale out?}
   In \S\ref{sec:eval:migration}, we see that when migrating 10\% of a server's
   hash range, Shadowfax's scale-out protocol can maintain throughput
   above 80~Mops/s.
@@ -37,7 +37,7 @@ To evaluate Shadowfax, we focused on six key questions:
 %   When coupled with fast migration, this allows Shadowfax to be lazy and
 %   flexible about how it distributes load.
 
-\item[Do indirection records help scale out?]
+\item {\bf Do indirection records help scale out?}
   \S\ref{sec:eval:migration:indir} shows
   that by restricting migration to main memory, indirection records help
   speed scale out by 6x.
@@ -51,7 +51,7 @@ To evaluate Shadowfax, we focused on six key questions:
 %
 % They can be cleaned up during compaction with no additional overhead.
 
-\item[Do views reduce scale out's impact on normal operation?]
+\item {\bf Do views reduce scale out's impact on normal operation?}
   In \S\ref{sec:eval:migration:views}, we show that validating ownership
   using views has a negligible impact on normal case server throughput.
 %
@@ -59,14 +59,14 @@ To evaluate Shadowfax, we focused on six key questions:
   improve throughput by as much as 17\% depending on the number of hash
   ranges owned by the server.
 
-\item[Can it scale across scales?]
+\item {\bf Can it scale across scales?}
   \S\ref{sec:eval:system-scalability} shows that when scaled across
   machines, Shadowfax continues to retain \faster's high throughput.
 %
   A cluster consisting of 768 threads spread across 12 servers scales
   linearly to 930~Mops/s while servicing 2304 client sessions.
 
-\end{description}
+\end{enumerate}
 
 % We also ran Shadowfax on a small
 % CloudLab~\cite{cloudlab} cluster consisting of 256 cores spread across 8
@@ -110,8 +110,8 @@ We compare to two baselines; one representing the
 state-of-the-art in fast request processing, the other representing the
 state-of-the-art in data migration.
 
-\noindent
-\textbf{Seastar+Memcached}~\cite{seastar}
+\begin{enumerate}
+\item \textbf{Seastar+Memcached}~\cite{seastar}
 is an open-source framework for building high
 performance multi-core services.
 %
@@ -133,8 +133,7 @@ Memcache on Seastar as a baseline~\cite{seastar-apps}.
 %
 We batched 100 operations per request, which maximized its throughput.
 
-\noindent
-\textbf{Rocksteady}~\cite{rocksteady} is a state-of-the-art migration
+\item \textbf{Rocksteady}~\cite{rocksteady} is a state-of-the-art migration
 protocol for RAMCloud~\cite{ramcloud}.
 %
 To accelerate migration, it immediately routes requests for migrated records
@@ -159,6 +158,7 @@ storage, where all encountered live are sent to the target.
 %
 %Once it completes, migration is completed, and they can be decoupled
 %using Shadowfax's 2PC based mechanism.
+\end{enumerate}
 
 \subsection{Throughput Scalability}
 \label{sec:eval:clients}

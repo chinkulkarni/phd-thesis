@@ -4,8 +4,7 @@
 Shadowfax builds on several areas of recent
 research.
 
-\noindent
-{\bf Epochs and Cuts.}
+\subsection{Epochs and Cuts}
 There are many schemes for synchronization and memory protection in lock-free
 concurrent data structures including hazard pointers~\cite{hazard},
 read-copy-update~\cite{rcu} and epoch-based schemes~\cite{epochs,epochs-phd}.
@@ -31,8 +30,7 @@ global cuts that define and order shards of operations on different
 machines~\cite{scalog}; Shadowfax uses similar cuts across threads and client
 session buffers to define an order to enforce boundaries among operations.
 
-\noindent
-{\bf High-throughput Networked Stores.}
+\subsection{High-throughput Networked Stores}
 Some in-memory stores exploit kernel-bypass networking or RDMA and optimize
 for multicore. Many of these focus on throughput but do not provide
 scale out~\cite{pilaf,mica,herd}, both of which
@@ -57,8 +55,7 @@ cannot be done with one-sided RDMA operations.
 
 % Elasticity
 
-\noindent
-{\bf Elasticity.}
+\subsection{Elasticity}
 Scale out and migration are key features in shared,
 replicated stores~\cite{dynamo,cassandra,redis}.  High-throughput, multicore
 stores complicate this because normal-case request processing is highly
