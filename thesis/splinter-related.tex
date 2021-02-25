@@ -8,7 +8,7 @@ number of tenants; further, no work addresses
 these issues with its throughput and latency goals, which are far
 beyond most cloud storage systems.
 
-\textbf{Low-latency RDMA-based Storage Systems.}
+\subsection{Low-latency RDMA-based Storage Systems}
 %
 Low-latency, high-throughput key-value stores are now thousands of times faster
   than conventional cloud storage by exploiting RDMA, kernel-bypass, and
@@ -59,7 +59,7 @@ table to allow application-specific extensions to get/put behavior.
 Lua's entry/exit costs are low; it is unclear how the performance of its
 just-in-time (JIT) compiled runtime would compare to Splinter.
 
-\textbf{SQL.}
+\subsubsection{SQL}
 %
 SQL may be the most widely used approach to ship computation to data,
 and it also supports use as a stored procedure language~\cite{tsql,plsql}.
@@ -79,7 +79,7 @@ Some have extended SQL for specific domains, like graph
 processing~\cite{neo4j}, scientific computing~\cite{gmm,scidb} and
 simulation~\cite{simsql}, showing that SQL by itself is insufficient for many domains.
 
-\textbf{Native-code Extensions.}
+\subsubsection{Native-code Extensions}
 %
 The popular
 Redis~\cite{redis} in-memory store supports native extensions. In

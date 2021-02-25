@@ -101,12 +101,12 @@ Tenants must not be able to tamper with the emitted extension, so it must be
   ensure its integrity in transit between the trusted compiler and the store.
 Aside from Rust's standard type and lifetime checks (\S\ref{sec:safety}),
   Splinter extensions have the following static restrictions:
-  \begin{description}
-    \item[No Unsafe Code.]
+  \begin{enumerate}
+    \item {\bf No Unsafe Code:}
       Unsafe code could skip compiler checks resulting in memory unsafety.
       So, our wrapper over \texttt{rustc} disallows unsafe code in extensions
       (\S\ref{sec:unsafe}).
-    \item[Module Whitelist.]
+    \item {\bf Module Whitelist:}
       Code from external dependencies could include unsafe code, and that
         unsafe code shouldn't be incorporated into untrusted extensions unless it
         is trusted.
@@ -117,7 +117,7 @@ Aside from Rust's standard type and lifetime checks (\S\ref{sec:safety}),
         and types.
       This restriction applies to the standard library (\texttt{std}) as well: the
         wrapper only exposes whitelisted \texttt{std} functionality to extensions.
-  \end{description}
+  \end{enumerate}
 These checks combine with three other runtime guarantees to
   ensure isolation:
 the store only accepts or provides references to insert/fetch a value under a key

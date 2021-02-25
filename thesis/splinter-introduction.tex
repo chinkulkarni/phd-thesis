@@ -1,4 +1,4 @@
-\section{Introduction}
+% \section{Introduction}
 Today's model of separated compute and storage is reaching its limits.  Fast,
   kernel-bypass networking has yielded key-value stores that perform
   millions of requests per second per machine with microseconds of
@@ -40,8 +40,8 @@ and \textsl{serverless computing}, which is already training developers to
   scalability, and ease of provisioning.
 
 Together, these trends drive Splinter's key design goals:
-\begin{description}
-\item[No-cost Isolation.]
+\begin{enumerate}
+\item {\bf No-cost Isolation:}
   Since extensions come from untrusted tenants, they must be isolated from one
     another.
   Hardware-based isolation is too
@@ -50,7 +50,7 @@ Together, these trends drive Splinter's key design goals:
 %  To solve this, Splinter enables developers to write type-safe, memory-safe
 %    extensions in Rust~\cite{rust-2018}, avoiding hardware isolation costs.
 
-\item[Zero-copy Storage Interface.]
+\item {\bf Zero-copy Storage Interface:}
   Extensions interact with stored data through a well-defined interface that
     serves as a trust boundary.
   For fine-grained requests, it
@@ -66,7 +66,7 @@ Together, these trends drive Splinter's key design goals:
 %  Extensions can typecast these objects into a set of safe
 %    types to achieve a rich data model without serialization and de-serialization costs.
 
-\item[Lightweight Scheduling for Heterogeneous Tasks.]
+\item {\bf Lightweight Scheduling for Heterogeneous Tasks:}
   Extensions are likely to be heterogeneous.
   Some extensions might involve simple point lookups of data or constructing
     small indexes; others might involve expensive computation or more data.
@@ -86,7 +86,7 @@ Together, these trends drive Splinter's key design goals:
 %    by the misbehaving extension, preserving good quality of service for the
 %    others.
 
-\item[Adaptive Multi-core Request Routing.]
+\item {\bf Adaptive Multi-core Request Routing:}
   With multiple tenants sharing a single machine, synchronization over tenant
     state can become a bottleneck.
   To minimize contention, tenants maintain locality by routing requests to
@@ -98,7 +98,7 @@ Together, these trends drive Splinter's key design goals:
  %   \textit{work stealing}, allowing underloaded cores to steal requests from
  %   overloaded ones.
 
-\end{description}
+\end{enumerate}
 
 These goals give rise to Splinter's design.
 Developers write type-safe, memory-safe extensions in Rust~\cite{rust}
