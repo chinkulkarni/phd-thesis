@@ -60,7 +60,8 @@ have been historically slow, and multiple tenants share resources.
 A third key feature is to support a diverse set of such tenants with
 varying access patterns, data models, and performance requirements.
 
-\textbf{Reconfiguration and Redistribution:}
+\section{Reconfiguration and Redistribution}
+
 When distributing data (records) across a cluster of
 machines, hash partitioning records across
 servers is often the norm.
@@ -97,7 +98,8 @@ redistribute records between servers can help mitigate these drawbacks.
 % so even a few cache misses will significantly hurt
 % performance.
 
-\textbf{Preserving performance in the Cloud:}
+\section{Preserving performance in the Cloud}
+
 Several of these stores exploit many-core hardware to
 ingest and index events at high rates -- 100 million operations
 (Mops) per second (s) per machine~\cite{mica,flexnic,floem,kvdirect}.
@@ -137,7 +139,8 @@ network packets easily dominates in these workloads, especially since,
 historically, cloud networking stacks have not supported high data rates
 and high efficiency.
 
-\textbf{Expressive Data Models and Multi-tenancy:}
+\section{Expressive Data Models and Multi-tenancy}
+
 Since the end of Dennard scaling, disaggregation has become the norm.
 %
 A high-speed network separates applications into a compute and
@@ -197,7 +200,7 @@ a factor of 2.
 
 \section{Contributions}
 
-\noindent{\bf
+{\bf
   Low-latency stores adopt simple, stripped-down designs that optimize
   for normal-case performance, and in the process, trade-off
   practicality and cost-effectiveness at cloud scale.
@@ -208,8 +211,6 @@ a factor of 2.
   systems that
   retain their primary performance benefits at cloud scale.
 }
-
-\vspace{8pt}
 
 This thesis presents the following horizontal and vertical mechanisms
 for rapid low-impact reconfiguration, multi-tenancy, and expressive data

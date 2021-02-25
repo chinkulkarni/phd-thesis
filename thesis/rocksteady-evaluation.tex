@@ -2,22 +2,22 @@
 \label{sec:reval}
 
 To evaluate Rocksteady, we focused on five key questions:
-\begin{description}
-\item[How fast can Rocksteady go and meet tight SLAs?]
+\begin{enumerate}
+\item {\bf How fast can Rocksteady go and meet tight SLAs?}
   \S\ref{sec:e2e} shows that Rocksteady can sustain migration at
     758~MB/s with \nnnth percentile access latency of lesser than 250~\us.
-\item[Does lineage accelerate migration?]
+\item {\bf Does lineage accelerate migration?}
   Lineage and deferred log replication allow Rocksteady to migrate data
     1.4$\times$ faster than synchronous re-replication while shifting
     load from the source to the target more quickly (\S\ref{sec:e2e}).
-\item[What is the impact at the source and target?]
-  \S\ref{sec:eval-load}\linebreak{}shows that regardless of workload skew, Rocksteady
+\item {\bf What is the impact at the source and target?}
+  \S\ref{sec:eval-load} shows that regardless of workload skew, Rocksteady
     migrations cause almost no increase in source dispatch load, which is the source's
     most scarce resource for typical read-heavy workloads. Background \pulls
     add about 45\% worker CPU utilization on the source, and Rocksteady
     effectively equalizes CPU load on the source and target.
     Dispatch load due to the migration manager on the target is minimal.
-\item[Are asynchronous batched priority pulls effective?]
+\item {\bf Are asynchronous batched priority pulls effective?}
   \S\ref{sec:eval-priopulls} shows that asynchronous priority pulls are
     essential in two ways. First, synchronous priority pulls would increase both
     dispatch and worker load during migration due to the increased number of
@@ -25,7 +25,7 @@ To evaluate Rocksteady, we focused on five key questions:
     asynchronous batched \priopulls reduce load at the source fast enough to help
     hide the extra load due to background \pulls on the source, which is key to
     Rocksteady's fast transfer.
-\item[What limits migration?]
+\item {\bf What limits migration?}
   \S\ref{sec:eval-replay} shows that the source and target can send/consume
     small records at 5.7~GB/s and 3~GB/s, respectively; for small
     records,
@@ -47,7 +47,7 @@ To evaluate Rocksteady, we focused on five key questions:
 %backoffs. Might want to vary the priority of replay and pull rpcs for
 %each of these configurations.
 %\item How does re-replication speed impact performance after migration?
-\end{description}
+\end{enumerate}
 
 \subsection{Experimental Setup}
 \label{sec:setup}

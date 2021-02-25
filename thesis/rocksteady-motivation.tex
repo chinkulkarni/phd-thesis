@@ -290,16 +290,16 @@ itself (drop from 710~MB/s to 600~MB/s).
 
 These bottlenecks give the design criteria for Rocksteady.
 
-\noindent
-\textbf{No Synchronous Re-replication:} Waiting for data to be re-replicated by
+\begin{enumerate}
+
+\item \textbf{No Synchronous Re-replication:} Waiting for data to be re-replicated by
 the target server wastes CPU cycles and burns memory bandwidth.
 Rocksteady's approach is inspired by
 lineage~\cite{spark}; a target server takes a temporary dependency on the
 source's log data to safely eliminate log replication from the migration
 fast-path (\S\ref{sec:log-dep}).
 
-\noindent
-\textbf{Immediate Transfer of Ownership:} RAMCloud's migration takes minutes
+\item \textbf{Immediate Transfer of Ownership:} RAMCloud's migration takes minutes
 or hours. During this time, no load can be shifted away from the source
 because the target cannot safely take ownership until all
 the data has been re-replicated.  Rocksteady immediately and safely shifts
@@ -311,17 +311,17 @@ ownership from the source to the target (\S\ref{sec:new-design}).
 %objects into buffers and transmitting them would nearly half migration speed
 %(1,150~MB/s to 600~MB/s) even if the target wasn't a bottleneck.
 
-\noindent
-\textbf{Parallelism on Both the Target and Source:} Log replay need not be
+\item \textbf{Parallelism on Both the Target and Source:} Log replay need not be
 single-threaded.  A target is likely to be under-loaded, so parallel
 replay makes sense. Rocksteady's parallel replay can incorporate log records
 at the target at more than 3~GB/s (\S\ref{sec:eval-replay}). Similarly,
 source-side migration operations should be pipelined and parallel. Parallelism
 on both ends requires care to avoid contention.
 
-\noindent
-\textbf{Load-Adaptive Replay:} Rocksteady's migration manager minimizes impact
+\item \textbf{Load-Adaptive Replay:} Rocksteady's migration manager minimizes impact
 on regular request processing with fine-grained low-priority
 tasks~\cite{morsel-driven-parallelism,sparrow}. Rocksteady also incorporates
 into RAMCloud's transport layer to minimize jitter caused by background
 migration transfers (\S\ref{sec:qos}).
+
+\end{enumerate}

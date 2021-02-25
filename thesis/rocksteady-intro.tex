@@ -1,4 +1,4 @@
-\section{Introduction}
+% \section{Introduction}
 \label{ref:intro}
 
 %K Scale-out in-memory stores: fast, low-latency, but not immune to load imbalancing and reconfiguration.
@@ -30,8 +30,8 @@ However, hardware trends and the specialized needs of an in-memory
 key-value store
 make Rocksteady's approach unique:
 
-\begin{description}
-\item[Low-latency Access Times:]
+\begin{enumerate}
+\item {\bf Low-latency Access Times:}
 RAMCloud services requests in 6~\us, and predictable, low-latency operation is
 its primary benefit.  Rocksteady's focus is on \nnnth{}-percentile response
 times but with 1,000$\times$ lower response times than other tail latency
@@ -40,7 +40,7 @@ a millisecond of extra tail latency would destroy client-observed
 performance. Migration must have minimum impact on access latency
 distributions.
 
-\item[Growing DRAM Storage:]
+\item {\bf Growing DRAM Storage:}
 Off-the-shelf data center machines pack 256~to~512~GB per server
 with terabytes coming soon. Migration speeds must
 grow along with DRAM capacity for load balancing and reconfiguration to be
@@ -48,7 +48,7 @@ practical. Today's migration techniques would take hours
 to move a fraction of a single machine's data, making them ineffective for
 scale-up and scale-down of clusters.
 
-\item[High Bandwidth Networking:]
+\item {\bf High Bandwidth Networking:}
 Today, fast in-memory stores use 40~Gbps networks with
 200~Gbps~\cite{mellanox-cx6} arriving in 2017. Ideally, with data in memory, these
 systems would be able to migrate data at full line rate, but there are many
@@ -58,9 +58,9 @@ stores~(\S\ref{sec:hw}).  Even with the most straightforward migration
 techniques, moving data at line-rate would severely degrade
 normal-case request processing.
 
-\end{description}
+\end{enumerate}
 
-\noindent
+% \noindent
 In short, the faster and less disruptive we can make migration, the more often we can
 afford to use it, making it easier to exploit locality and scaling for efficiency gains.
 
@@ -70,12 +70,12 @@ operation, and its servers internally (re-)arrange data to optimize memory
 utilization and garbage collection. These aspects lead to the following
 three design goals for Rocksteady:
 
-\begin{description}
-\item[Pauseless:]
+\begin{enumerate}
+\item {\bf Pauseless:}
 RAMCloud must be available at all times~\cite{ramcloud-recovery}, so
 Rocksteady can never take tables offline for migration.
 
-\item[Lazy Partitioning:]
+\item {\bf Lazy Partitioning:}
 For load balancing, servers in most systems
 internally pre-partition data
 to minimize overhead at migration time~\cite{dynamo,farm-2014}.
@@ -91,7 +91,7 @@ minimize cleaning costs. Forcing a partitioning on server state
 would harm the cleaner's efficiency, which is key to making RAMCloud
 cost-effective.
 
-\item[Low Impact With Minimum Headroom:]
+\item {\bf Low Impact With Minimum Headroom:}
 Migration increases load on the source and target servers. This increase
 is particularly
 problematic for the source since RAMCloud might initiate migration to cope with
@@ -99,25 +99,25 @@ increasing load. Efficient use of hardware resources is critical during
 migration; preserving headroom for rebalancing increases the
 system's cost directly.
 
-\end{description}
+\end{enumerate}
 
-\noindent
+% \noindent
 Four key ideas allow Rocksteady to meet these goals:
-\begin{description}
-\item[Adaptive Parallel Replay:]
+\begin{enumerate}
+\item {\bf Adaptive Parallel Replay:}
 For servers to keep up with fast networks during migration, Rocksteady fully
 pipelines and parallelizes all migration phases between the source and
 target servers. For example, target servers spread incoming data across idle
 cores to speed up index reconstruction, but migration operations yield to
 client requests for data to minimize disruption.
 
-\item[Exploit Workload Skew to Create Source-side Headroom:] Rocksteady
+\item {\bf Exploit Workload Skew to Create Source-side Headroom:} Rocksteady
   prioritizes migration of hot records. This prioritization
   quickly shifts some load with minimal impact for typical skewed
   workloads, which creates headroom on the
   source to allow faster migration with less disruption.
 
-\item[Lineage-based Fault Tolerance:]
+\item {\bf Lineage-based Fault Tolerance:}
 Each RAMCloud server logs updated records in a distributed, striped log,
 also kept (once) in-memory to service requests. A server does not know how its
 contents will be partitioned during migration, so records are intermixed
@@ -129,7 +129,7 @@ Resilient Distributed Datasets~\cite{spark}; servers can take dependencies
 on portions of each others' recovery logs, allowing them to safely
 reorganize storage asynchronously.
 
-\item[Optimization for Modern NICs:]
+\item {\bf Optimization for Modern NICs:}
 %Rocksteady is the first data migration mechanism to perform live migrations
 %at near-line rate ({\color{red}4~GB/s}) on modern networking hardware, yet it
 %preserves SLAs {\color{red} 1,000x} lower than conventional stores.
@@ -147,7 +147,7 @@ the result is a fast
 transfer with reduced CPU load, reduced memory bandwidth load, and more
 stable normal-case performance.
 
-\end{description}
+\end{enumerate}
 
 This chapter starts by motivating Rocksteady (\S\ref{sec:rmotivation}) and quantifying the
 gains it can achieve. Then, it shows why state-of-the-art migration techniques
