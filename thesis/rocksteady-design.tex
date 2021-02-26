@@ -303,9 +303,8 @@ unnecessary overhead.
 
 All experiments in this chapter were run with a DPDK driver that currently
 copies all data into transmit buffers. This setup creates one more copy of records
-than strictly necessary on the source. This limitation is not fundamental;
-we are in the process of changing RAMCloud's DPDK support to eliminate the
-copy.  Experiments run on Reliable Connected Infiniband with zero-copy shows
+than strictly necessary on the source. Experiments run on Reliable
+Connected Infiniband with zero-copy shows
 similar results. This similarity is in large part because Intel's DDIO
 support means that
 the final DMA copy from Ethernet frame buffers is from the CPU
@@ -419,6 +418,3 @@ with the source's recovery log. This approach keeps things simple by reusing
 the recovery mechanism at the expense of extra recovery effort (twice as much
 as for a normal recovery) in the rare case that a machine involved in
 migration crashes.
-%
-Extending RAMCloud's recovery to allow recovery from multiple logs is
-straightforward.
