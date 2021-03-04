@@ -357,8 +357,7 @@ and clients in a cluster.
 %
 These cuts help coordinate server
 and client threads
-in Shadowfax's low-coordination data migration and
-reconfiguration protocol.
+in Shadowfax's low-coordination data migration.
 
 In addition to reconfiguration, Shadowfax has mechanisms that help it
 achieve a throughput of 130~Mops/s/VM over
@@ -444,7 +443,7 @@ A dedicated watchdog core identifies and blocks uncooperative
 extensions.
 %
 Splinter passes immutable references to extensions to minimize data
-copies; the rust compiler statically verifies these references' lifetime
+copies; the Rust compiler statically verifies these references' lifetime
 and safety.
 %
 With the help of these mechanisms, Splinter can isolate

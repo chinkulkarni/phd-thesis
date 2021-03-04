@@ -275,8 +275,8 @@ However, in-place updates might not always be possible.
 For workloads that are insert only, throughput will be limited by the
 rate at which records can be appended to the \hlog's tail.
 %
-Figure~\ref{fig:thread-scalability-append} presents scalability for a
-workload that inserts 250~million records into Shadowfax.
+Figure~\ref{fig:thread-scalability-append} presents scalability for
+such a workload.
 %
 Throughput scales to 8~Mops/s on 16 threads.
 %
@@ -405,7 +405,7 @@ We also measured the hit rate (the percentage of requests
 that were served from main-memory) during this experiment.
 %
 Figure~\ref{fig:memory} presents the results
-(please note the log scale).
+(in log scale).
 
 Overall, throughput drops as the memory budget decreases.
 %

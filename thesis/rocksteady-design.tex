@@ -193,7 +193,7 @@ crucial for fast migration.
 The target solves this problem by logically {\em partitioning} the source's key-hash
 space. It only issues concurrent \pulls if they are for disjoint regions of the
 source's key-hash space (and, consequently, disjoint regions of the source's
-hash table).  Figure~\ref{fig:source} shows how this works.
+hash table).  Figure~\ref{fig:rsource} shows how this works.
 Since round-trip delay is similar to source pull processing time,
 a small constant factor more partitions than worker cores are sufficient for the
 target to keep any number of source workers running fully-utilized.
@@ -236,7 +236,7 @@ target's hash table on idle worker cores.  Pull requests from distinct
 partitions of the hash table naturally correspond to different partitions of
 the target's hash table as well, which mitigates contention between parallel
 replay tasks.
-Figure~\ref{fig:target} shows how the
+Figure~\ref{fig:rtarget} shows how the
 migration manager ``scoreboards'' \pull RPCs from different hash table partitions and
 hands responses over to idle worker cores.
 Depending on the target server's load, the manager naturally

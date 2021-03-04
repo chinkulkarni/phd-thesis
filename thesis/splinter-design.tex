@@ -198,7 +198,7 @@ Full protection will require compiler support~\cite{llvm-spectre},
 hardened storage interfaces (like
   the Linux kernel~\cite{linux-spectre}), and hardened libraries for
   extensions.
-The measurements in this paper do not include these mitigations.
+The measurements in this chapter do not include these mitigations.
 
 \subsubsection{Memory Safety}
 \label{sec:safety}
@@ -237,7 +237,7 @@ An important extra restriction that Splinter imposes beyond Rust is that
 For example, unsafe code can dereference pointers, perform unsafe casts, omit
   bounds checks, and implement low-level synchronization primitives.
 All unsafe code in Rust requires an \texttt{unsafe} block, which
-Splinter disallows in extension code.
+Splinter disallows.
 
 Extensions cannot implement unsafe code, but they can invoke it indirectly.
 This is often desired.
