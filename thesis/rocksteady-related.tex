@@ -4,12 +4,12 @@ Amazon's Dynamo~\cite{dynamo} is a highly-available distributed key-value store
 that pushed for a focus on \nnnth percentile access latency, though Rocksteady
 pushes for tail latency nearly 1,000$\times$ lower even while migrating. Dynamo
 supported strong SLAs and reconfiguration through a very different approach
-that took advantage of pre-partitioning records inside each server, replication,
+that took advantage of prepartitioning records inside each server, replication,
 and weak consistency. DRAM is expensive, so Rocksteady must not rely on
-in-memory replication or internal pre-partitioning of records.
+in-memory replication or internal prepartitioning of records.
 
 Distributed database live migration has received a great deal of attention,
-particularly for multi-tenant cloud databases. Rocksteady uses many ideas from
+particularly for multitenant cloud databases. Rocksteady uses many ideas from
 prior work like pacing migration~\cite{slacker}, eager transfer of
 ownership~\cite{zephyr,squall}, and combining on-demand and background
 migration~\cite{squall,zephyr,prorea}. Others have explored holding ownership
@@ -49,10 +49,10 @@ it must re-replicate lost partitions when a server fails. It paces recovery to a
 few hundred megabytes per second per server in order to minimize performance
 impact. Similarly, DrTM-B~\cite{drtmb} minimizes the impact of reconfiguration by relying on in-memory replicas.
 However, replicas can become overloaded too, so
-data is migrated using parallel RDMA reads.
+data are migrated using parallel RDMA reads.
 One key aspect of FaRM is that partitions are physical: a lost
 partition is an opaque region of memory, so most of the overhead of
-re-replication is network transfer. RAMCloud migration is more
+rereplication is network transfer. RAMCloud migration is more
 complicated than FaRM since
 the source and target do not share a common partitioning or physical memory layout.
 

@@ -2,9 +2,9 @@
 \centering
 \includegraphics[width=1.0\columnwidth]{graphs/ramcloud-colocation.pdf}
 \caption{The throughput and CPU load impact of access locality. When
-multi-gets
+multigets
 always fetch data from a single server (Spread~1), throughput is high, and
-worker cores operate in parallel. When each multi-get must fetch keys from
+worker cores operate in parallel. When each multiget must fetch keys from
 many machines (Spread~7), throughput suffers as each server becomes
 bottlenecked on dispatching requests.}
 \label{fig:colocation}

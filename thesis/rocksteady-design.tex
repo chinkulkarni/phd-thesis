@@ -48,7 +48,7 @@ Migration in Rocksteady is driven by the target, which pulls records from
 the source. This approach places most of the complexity, work, and state
 on the target,
 eliminating the bottleneck of synchronous replication
-(\S\ref{sec:bottlenecks}). In most migration scenarios, the source
+(Section~\ref{sec:bottlenecks}). In most migration scenarios, the source
 is in a state of overload or near-overload, so we must avoid giving it
  more work to do.
 The second advantage of this arrangement is that it meets
@@ -223,7 +223,7 @@ that have completed.
 
 At the start of migration, the manager logically divides the source
 server's key-hash
-space into partitions (\S\ref{sec:source}). It then asynchronously issues
+space into partitions (Section~\ref{sec:source}). It then asynchronously issues
 \pull requests to the source, each belonging to a different partition of the
 source hash space. As \pulls complete, it pushes the records to idle workers,
 and it issues a new \pull. If all workers on the target are busy, then
@@ -257,7 +257,7 @@ overlap network delay with source-side \pull processing completely.
 Replaying a \pull response consists of incorporating the records into
 the master's in-memory log and inserting references to the records in the
 master's hash table.  Using a single core to replay would limit migration to a
-few hundred megabytes per second (\S\ref{sec:eval-replay}),  but a
+few hundred megabytes per second (Section~\ref{sec:eval-replay}),  but a
 parallel approach where
 cores share a single log would also break down due to contention.  Eliminating
 contention is key for fast migration.
@@ -276,10 +276,12 @@ only when they are committed to the main log.
 \label{sec:hw}
 All data transfer in Rocksteady takes place through RAMCloud's RPC layer
 allowing the protocol to be both transport and hardware agnostic. Target
-initiated one-sided RDMA reads may seem to promise fast transfers without the
+initiated one-sided RDMA (Remote Direct Memory Access) reads may seem to
+promise fast transfers without the
 source's involvement. However, they break down because the records under migration are
 scattered across the source's in-memory log. RDMA reads support
-scatter-gather DMA, but reads can only fetch a single contiguous chunk of
+scatter-gather DMA (Direct Memory Access), but reads can only fetch a
+single contiguous chunk of
 memory from the remote server. That is, a single RDMA read {\em scatters} the
 fetched value locally; it cannot {\em gather} multiple remote locations with a
 single request. As a result, an RDMA read initiated by the target could only
@@ -346,7 +348,7 @@ hashes of client-requested keys that have not yet arrived, and it
 requests the batch of records with a single \priopull. While a
 \priopull is in flight, the target accumulates new key hashes of newly
 requested keys, and it issues them when the first \priopull completes.
-De-duplication ensures that \priopulls never request the same key hash
+Deduplication ensures that \priopulls never request the same key hash
 from the source twice. If the hash for a new request was part of an already in-flight \priopull
 or in the next batch accumulating at the target, it is
 discarded.  Batching is key to shedding source load quickly since it ensures
@@ -354,7 +356,7 @@ that the source never serves a request for a key more than once after migration
 starts, and it limits the number of small requests that the source has to
 handle.
 
-\subsection{Lineage for Safe, Lazy Re-replication}
+\subsection{Lineage for Safe, Lazy Rereplication}
 \label{sec:log-dep}
 
 %During normal operation, all write operations processed by a server are
@@ -386,7 +388,7 @@ handle.
 %been replicated or merged into the main log; next, we discuss how we make that
 %safe.
 
-Avoiding synchronous re-replication of migrated data creates a
+Avoiding synchronous rereplication of migrated data creates a
 challenge for fault tolerance if tablet ownership is transferred to the target
 at the start of migration. If the target crashes in the middle of a migration,
 then neither the source nor the target would have all of the records needed to
@@ -398,7 +400,7 @@ recovery. Rocksteady takes a unique approach to solving this problem that
 relies on RAMCloud's distributed fast recovery, which can restore a crashed
 server's records into memory in 1~to~2~seconds.
 
-To avoid synchronous re-replication of all of the records as they are
+To avoid synchronous rereplication of all of the records as they are
 transmitted from the source to the target, the migration manager
 registers a dependency of the source server on the tail of the target's
 recovery log at the cluster coordinator. The target must already contact the
