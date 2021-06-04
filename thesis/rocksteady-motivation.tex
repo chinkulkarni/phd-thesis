@@ -6,7 +6,7 @@ DRAM at all times and is designed to scale across thousands of commodity data
 center servers. Each server can service millions of operations per
 second, but its focus is on low access latency.  End-to-end read and durable
 write operations take just 6~\us~and~15~\us,
-respectively, on our hardware (\S\ref{sec:reval}).
+respectively, on our hardware (Section~\ref{sec:reval}).
 
 Each server (Figure~\ref{fig:ramcloud-cluster}) operates as a \emph{master},
 which manages RAMCloud objects in its DRAM and services client requests, and a
@@ -35,8 +35,8 @@ string) key but ordered secondary indexes can also be constructed on top of
 tables~\cite{ramcloud-slik}. Like tables, secondary indexes can be split into
 {\em indexlets} to scale them across servers. Indexes contain primary key hashes
 rather than records, so tables and their indexes can be scaled independently
-and need not be co-located (Figure~\ref{fig:index}). Clients can issue multi-read
-and multi-write requests that fetch or modify several objects on one server with
+and need not be colocated (Figure~\ref{fig:index}). Clients can issue multiread
+and multiwrite requests that fetch or modify several objects on one server with
 a single request. They can also issue externally consistent and serializable
 distributed transactions~\cite{ramcloud-rifl}.
 
@@ -78,12 +78,12 @@ spreads load fairly well even as workloads change. However, its
 load spreading is also its drawback; even in-memory stores benefit
 significantly from exploiting access locality.
 
-In RAMCloud, for example, co-locating access-correlated keys benefits
-multi-get/multi-put operations, transactions, and range queries. Transactions can
-benefit significantly if all affected keys can be co-located since
+In RAMCloud, for example, colocating access-correlated keys benefits
+multiget/multiput operations, transactions, and range queries. Transactions can
+benefit significantly if all affected keys can be colocated since
 synchronous, remote
 coordination for two-phase commit~\cite{ramcloud-rifl,sinfonia} can be avoided.
-Multi-operations and range queries benefit in a more subtle but still important
+Multioperations and range queries benefit in a more subtle but still important
 way. If all requested values live together on the same machine, a client can
 issue a single remote procedure call (RPC) to a single server to get
 the values. If the values are divided among multiple machines, the client must
@@ -93,35 +93,35 @@ induced on the cluster is significantly different.
 
 Figure~\ref{fig:colocation} explores this effect. It consists of a
 microbenchmark run with seven~servers and 14~client machines. Clients issue back-to-back
-multi-get operations evenly across the cluster, each for seven~keys at a time. In
-the experiment, clients vary which keys they request in each multi-get to vary
+multiget operations evenly across the cluster, each for seven~keys at a time. In
+the experiment, clients vary which keys they request in each multiget to vary
 how many servers they must issue parallel requests to, but all servers still
 handle the same number of requests as each other.
-At Spread~1, all of the keys for a specific multi-get come from one server. At
-Spread~2, 6~keys per multi-get come from one server, and the
-7\textsuperscript{th} key comes from another server. At Spread~7, each of the
-seven~keys in the multi-get is serviced by a different server.
+At Spread~1, all of the keys for a specific multiget come from one server. At
+Spread~2, 6~keys per multiget come from one server, and the
+seventh key comes from another server. At Spread~7, each of the
+seven~keys in the multiget is serviced by a different server.
 
 %RAMCloud uses a kernel-bypass networking stack and polls the network device
 %(NIC) registers, but each message that is received and dispatched to a worker
 %thread induces some load on each server process. When a RAMCloud cluster is
 %forced to dispatch 7 requests for 7 objects instead of 1 request for 7
 %objects, the total system throughput suffers.
-When multi-gets involve two servers rather than one, the cluster-wide throughput
+When multigets involve two servers rather than one, the cluster-wide throughput
 drops 23\% even though no resources have been removed from the cluster. The
 bottom half of the figure shows the reason.  Each server has a single {\em dispatch}
 core that polls the network device for incoming messages and hands-off requests
 to idle {\em worker} cores.  With high locality, the cluster is only limited by
-how quickly worker cores can execute requests. When each multi-get results in
+how quickly worker cores can execute requests. When each multiget results in
 requests to two servers, the dispatch core load doubles and saturates, leaving
 the workers idle. The dotted line shows the throughput of a single server.
-When each multi-get must fetch data from all seven~servers, the entire
+When each multiget must fetch data from all seven~servers, the entire
 cluster's aggregate performance barely outperforms a single machine.
 
 Overall, the experiment shows that, even for small clusters, minimizing tablet
 splits and maximizing locality has a significant benefit, in this case, up to
 4.3$\times$.  Our findings echo recent trends in scale-out stores that
-replicate to minimize multi-get ``fan-out''~\cite{fb-memcache} or give users
+replicate to minimize multiget ``fan-out''~\cite{fb-memcache} or give users
 explicit control over data placement to exploit locality~\cite{spanner}.
 
 Load imbalance has a similar effect on another common case: indexes.
@@ -136,7 +136,7 @@ that require splits and migration.
 Figure~\ref{fig:index-load} explores this sensitivity on a cluster with a single
 table and secondary index.  The table contains one million 100~B
 records, each
-with a 30~B primary and a 30~B secondary key. Clients issue short 4-record scans over
+with a 30~B primary and a 30~B secondary key. Clients issue short four-record scans over
 the index with the start key chosen from a Zipfian distribution with skew
 $\theta$ = 0.5.
 %A single run of our experiment issued 10$^{5}$ range scans for a given target
@@ -168,7 +168,7 @@ servers gives 6.3\% worse throughput {\em and} increases dispatch load by 26\%.
 
 Overall, reconfiguration is essential to meet SLAs (service level agreements), provide peak throughput,
 and minimize load as workloads grow, shrink, and change. Evenly spreading load
-is a non-goal as long as SLAs are met; approaches like consistent
+is a nongoal as long as SLAs are met; approaches like consistent
 hashing can throw away (sometimes large factor) gains from exploiting locality.
 
 \subsection{The Need for (Migration) Speed}
@@ -212,7 +212,7 @@ bottleneck for migration, then what is?
 \subsection{Barriers to Fast Migration}
 \label{sec:bottlenecks}
 
-RAMCloud has a simple, pre-existing mechanism that allows tables to be split
+RAMCloud has a simple, preexisting mechanism that allows tables to be split
 and migrated between servers.
 %It builds on RAMCloud's unique approach to
 %distributed recovery~\cite{ramcloud-recovery}.
@@ -225,7 +225,7 @@ the source iterates over all of the entries in its
 in-memory log. It copies the values that are being migrated into staging buffers for
 transmission to the target. The target receives these buffers and performs a
 form of logical replay as it would during recovery. It copies the received
-records into its log, re-replicates them, and updates its in-memory hash
+records into its log, rereplicates them, and updates its in-memory hash
 table, which serves as its primary key index. Only after all of the records
 have been transferred is tablet ownership switched from the source to
 the target.
@@ -249,7 +249,7 @@ to a single switch.
 The "Full" line shows migration speed when the whole migration
 protocol is used. The source scans its log and sends records that need to
 be migrated; the target replays the received records into its log and
-re-replicates them on backups.
+rereplicates them on backups.
 %Once all data has been received the
 %source blocks updates for a few hundred microseconds as the last few updates
 %are transmitted and ownership is shifted from the source to the target server.
@@ -273,7 +273,7 @@ This setup raises migration performance
 to 600~MB/s, more than a 3$\times$ increase in migration
 rate. Even so, it shows that the source side is also an impediment to fast
 migration. The hosts can communicate at 5~GB/s, so the link is still only
-about 10\% utilized. At this speed, re-replication becomes a
+about 10\% utilized. At this speed, rereplication becomes a
 problem; RAMCloud's existing log replication mechanism bottlenecks at around
 380~MB/s on our cluster.
 
@@ -292,18 +292,18 @@ These bottlenecks give the design criteria for Rocksteady.
 
 \begin{enumerate}
 
-\item \textbf{No Synchronous Re-replication:} Waiting for data to be re-replicated by
+\item \textbf{No Synchronous Rereplication:} Waiting for data to be rereplicated by
 the target server wastes CPU cycles and burns memory bandwidth.
 Rocksteady's approach is inspired by
 lineage~\cite{spark}; a target server takes a temporary dependency on the
 source's log data to safely eliminate log replication from the migration
-fast-path (\S\ref{sec:log-dep}).
+fast-path (Section~\ref{sec:log-dep}).
 
 \item \textbf{Immediate Transfer of Ownership:} RAMCloud's migration takes minutes
 or hours. During this time, no load can be shifted away from the source
 because the target cannot safely take ownership until all
-the data has been re-replicated.  Rocksteady immediately and safely shifts
-ownership from the source to the target (\S\ref{sec:new-design}).
+the data has been rereplicated.  Rocksteady immediately and safely shifts
+ownership from the source to the target (Section~\ref{sec:new-design}).
 
 % XXX Removed until ZC is added to DPDK tx and evaulated.
 %\noindent
@@ -314,14 +314,14 @@ ownership from the source to the target (\S\ref{sec:new-design}).
 \item \textbf{Parallelism on Both the Target and Source:} Log replay need not be
 single-threaded.  A target is likely to be under-loaded, so parallel
 replay makes sense. Rocksteady's parallel replay can incorporate log records
-at the target at more than 3~GB/s (\S\ref{sec:eval-replay}). Similarly,
+at the target at more than 3~GB/s (Section~\ref{sec:eval-replay}). Similarly,
 source-side migration operations should be pipelined and parallel. Parallelism
 on both ends requires care to avoid contention.
 
-\item \textbf{Load-Adaptive Replay:} Rocksteady's migration manager minimizes impact
+\item \textbf{Load-adaptive Replay:} Rocksteady's migration manager minimizes impact
 on regular request processing with fine-grained low-priority
 tasks~\cite{morsel-driven-parallelism,sparrow}. Rocksteady also incorporates
 into RAMCloud's transport layer to minimize jitter caused by background
-migration transfers (\S\ref{sec:qos}).
+migration transfers (Section~\ref{sec:qos}).
 
 \end{enumerate}

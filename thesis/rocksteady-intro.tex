@@ -54,7 +54,7 @@ Today, fast in-memory stores use 40~Gbps networks with
 systems would be able to migrate data at full line rate, but there are many
 challenges. For example, we find that these network cards (NICs)
 struggle with the scattered, fine-grained objects typical to in-memory
-stores~(\S\ref{sec:hw}).  Even with the most straightforward migration
+stores~(Section~\ref{sec:hw}).  Even with the most straightforward migration
 techniques, moving data at line-rate would severely degrade
 normal-case request processing.
 
@@ -66,7 +66,7 @@ afford to use it, making it easier to exploit locality and scaling for efficienc
 
 Besides hardware, three aspects of RAMCloud's design affect Rocksteady's
 approach; it is a high-availability system, focuses on low-latency
-operation, and its servers internally (re-)arrange data to optimize memory
+operation, and its servers internally (re)arrange data to optimize memory
 utilization and garbage collection. These aspects lead to the following
 three design goals for Rocksteady:
 
@@ -82,7 +82,7 @@ to minimize overhead at migration time~\cite{dynamo,farm-2014}.
 Rocksteady rejects this approach for two reasons. First, deferring all
 partitioning until migration time lets Rocksteady make partitioning
 decisions with full information at hand; a set
-of pre-defined splits never constrains it. Second, DRAM-based storage is
+of predefined splits never constrains it. Second, DRAM-based storage is
 expensive; during
 regular operation, RAMCloud's log cleaner~\cite{ramcloud-lsm}
 continually
@@ -149,15 +149,16 @@ stable normal-case performance.
 
 \end{enumerate}
 
-This chapter starts by motivating Rocksteady (\S\ref{sec:rmotivation}) and quantifying the
+This chapter starts by motivating Rocksteady
+(Section~\ref{sec:rmotivation}) and quantifying the
 gains it can achieve. Then, it shows why state-of-the-art migration techniques
 are insufficient for RAMCloud, including a breakdown of why RAMCloud's simple,
 pre-existing migration is inadequate
-(\S\ref{sec:bottlenecks}). This chapter then describes Rocksteady's full design
-(\S\ref{sec:new-design}), including its fault tolerance strategy, and
+(Section~\ref{sec:bottlenecks}). This chapter then describes Rocksteady's full design
+(Section~\ref{sec:new-design}), including its fault tolerance strategy, and
 evaluates
 its performance with an emphasis on migration speed and tail latency
-impact~(\S\ref{sec:reval}).
+impact~(Section~\ref{sec:reval}).
 Compared to prior approaches, Rocksteady transfers data an order of magnitude
 faster ($>$~750~MB/s) with median and tail latencies 1,000$\times$ lower
 ($<$~40~\us and
