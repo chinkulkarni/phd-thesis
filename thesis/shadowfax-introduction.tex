@@ -23,7 +23,7 @@ device crash reports, etc.
 Hence, these state management systems are a focal point for massive numbers of
 events and queries over aggregated information about them.
 
-Recently, this has led to specialized KVSs that can
+Recently, this has led to specialized KVSs (Key Value Stores) that can
 ingest and index these events at high rates -- 100 million operations (Mops) per second (s) per machine -- by
 exploiting many-core hardware~\cite{faster,anna}.
 %
@@ -172,20 +172,20 @@ are shared among all cores.
 %
 This risks contention when some records are hot and frequently
 mutated, but this is more than offset by the fact that no software-level
-inter-core request forwarding or routing is needed within server VMs.
+intercore request forwarding or routing is needed within server VMs.
 
 \end{enumerate}
 
 The rest of the chapter is organized as follows. We provide background on the FASTER
-key-value store and its use of epochs within a machine (\S\ref{sec:fasterkv}). Next,
+key-value store and its use of epochs within a machine (Section~\ref{sec:fasterkv}). Next,
 we overview Shadowfax's design, including partitioned client
 sessions with global cuts and how they enable
-reconfiguration~(\S\ref{sec:design}). We then provide details on our parallel
-non-blocking migration and scale-out techniques~(\S\ref{sec:scale-out}).
+reconfiguration~(Section~\ref{sec:design}). We then provide details on our parallel
+non-blocking migration and scale-out techniques~(Section~\ref{sec:scale-out}).
 %
 \iffalse
 In the remainder of this paper, we describe how the key synchronization
-mechanisms at the core of \faster{}'s design (\S\ref{sec:epochs}) naturally led
+mechanisms at the core of \faster{}'s design (Section~\ref{sec:epochs}) naturally led
 to Shadowfax's sessions that extend global cuts over the network
 (\S\ref{sec:sessions}). We describe how this enables Shadowfax to perform the
 same over the network as with a local \faster{}
@@ -197,7 +197,7 @@ storage.
 \fi
 %
 Next, we evaluate Shadowfax in detail against other state-of-the-art shared-nothing
-approaches~(\S\ref{sec:eval}), showing that by eliminating record ownership
+approaches~(Section~\ref{sec:eval}), showing that by eliminating record ownership
 checks and cross-core communication for routing requests it improves
 per-machine throughput by 8.5$\times$ on commodity cloud VMs.
 %
@@ -207,4 +207,5 @@ cluster that ingests and indexes 930~Mops/s in total,
 %
 which, to the best of our knowledge, is the highest
 reported throughput for a distributed KVS till date. We finally cover
-related work~(\S\ref{sec:related}) and conclude the chapter~(\S\ref{sec:conclude}).
+related work~(Section~\ref{sec:related}) and conclude the
+chapter~(Section~\ref{sec:conclude}).

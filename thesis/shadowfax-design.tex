@@ -19,7 +19,8 @@ local SSD.
 Each server runs one thread per core, and it shares its \faster instance among all threads.
 %
 Threads on remote clients directly establish a network \emph{session} with one
-server thread on the machine that owns the record being accessed (\S\ref{sec:sessions}).
+server thread on the machine that owns the record being accessed
+(Section~\ref{sec:sessions}).
 %
 Sessions are the key to retaining \faster{}'s throughput over the
 network:
@@ -27,7 +28,7 @@ network:
 they allow clients to issue asynchronous requests;
 they batch requests to improve server-side throughput and avoid
   head-of-line blocking;
-and they avoid software-level inter-core request dispatching.
+and they avoid software-level intercore request dispatching.
 
 Shadowfax uses hash partitioning to divide records among servers.
 %
@@ -35,7 +36,7 @@ The set of hash ranges owned by a server at a given logical point of
 time is associated with a per-server strictly increasing \emph{view
 number}.
 %
-A fault-tolerant, external metadata store (e.g.\ ZooKeeper~\cite{zookeeper})
+A fault-tolerant, external metadata store (e.g.,\ ZooKeeper~\cite{zookeeper})
 durably maintains these view numbers along with mappings from hash ranges to
 servers and vice versa.
 %
@@ -45,7 +46,7 @@ First, they help minimize the impact of record ownership checks at servers,
 helping them retain \faster's performance.
 %
 Second, they allow the system to make lazy and asynchronous progress
-through record ownership changes~(\S\ref{sec:ownership}).
+through record ownership changes~(Section~\ref{sec:ownership}).
 
 Sessions and low-coordination global cuts via views play a key role in
 Shadowfax's reconfiguration, data migration, and scale out.
@@ -217,7 +218,7 @@ per [4] has the details on these and other concurrency challenges.
 }
 \fi
 
-\subsection{Partitioned Dispatch \& Sessions}
+\subsection{Partitioned Dispatch and Sessions}
 \label{sec:dispatch}
 
 Shadowfax's network request dispatching mechanism and client library need to be
@@ -276,7 +277,7 @@ server threads.
 Shadowfax's partitioned dispatch/shared data approach also extends to
 clients.
 %
-Since they don't need to route requests to specific server threads, they
+Since they do not need to route requests to specific server threads, they
 can reduce connection state while avoiding cross-thread coordination.
 
 However, clients must also avoid stalling due to network delay in order to
@@ -366,7 +367,7 @@ a client might send out a batch of requests to a server after referring
 to its cache of ownership mappings.
 %
 By the time the server receives the batch, it might have lost ownership of
-some of the requested records in the batch (e.g.\ due to scale out).
+some of the requested records in the batch (e.g.,\ due to scale out).
 %
 To solve this, the server must validate that it still owns the records requested
 in the batch before it processes the batched requests.
@@ -403,7 +404,7 @@ If they match, then the server and client agree about what hash ranges are
 owned by the server, ensuring the batch is safe to process without further key
 or hash range checks on each request.
 %
-If they don't match, then either the client or the server has out-of-date
+If they do not match, then either the client or the server has out-of-date
 information about what hash ranges the server owns.
 %
 In this case, the server rejects the batch and refreshes its view from the
@@ -473,7 +474,7 @@ threads via an epoch action (Figure~\ref{fig:ownership}).
 %
 Threads each mark a point in their sequence of operations, collectively creating
 an async cut among all of the operations on all of the threads at the server
-(\S\ref{sec:epochs}).
+(Section~\ref{sec:epochs}).
 %
 This cut unambiguously ensures no two servers concurrently
 serve operations on an overlapping hash range.
@@ -533,7 +534,7 @@ buffer.
 Next, they are (re)buffered into the correct session based on
 the updated ownership mappings.
 
-\section{Scale-Out and Hash Migration}
+\section{Scale-out and Hash Migration}
 \label{sec:scale-out}
 
 Sessions and view numbers help retain high throughput over the network,
@@ -587,7 +588,7 @@ Shadowfax migrates hash ranges from a \emph{source} to a \emph{target} server.
 Migration is implemented as a state machine on the source and target.
 %
 Both servers transition through migration phases on global cuts, created in the
-same non-blocking, low-coordination way described in \S\ref{sec:epochs}.
+same nonblocking, low-coordination way described in Section~\ref{sec:epochs}.
 %
 First, each thread enters into a phase at a point in the sequence of requests
 that it is processing that it chooses (a point that makes up part of the global
@@ -613,7 +614,7 @@ Initiated by receiving a \texttt{Migrate()} RPC from a client, whereupon the sou
   \item atomically remaps ownership of hash ranges from the source to the
     target, increments the source's and target's view numbers, and registers a
     dependency between the source and target (for crash recovery,
-    \S\ref{sec:fault-tolerance}) within the metadata store;
+    Section~\ref{sec:fault-tolerance}) within the metadata store;
   \item begins sampling hot records by forcing all accessed
     records to be copied to the \hlog tail.
 \end{enumerate}
@@ -664,7 +665,7 @@ to the target.
 Threads interleave processing normal requests with sending batches of migrating
 records collected from the source's hash table to the target.
 %
-Each thread works on independent, non-overlapping hash table regions, avoiding
+Each thread works on independent, nonoverlapping hash table regions, avoiding
 contention.
 
 \item {\bf Complete:}
@@ -898,8 +899,8 @@ on finding both set, it deletes the
 dependency at the metadata store to complete migration.
 
 Shadowfax maintains high throughput during
-scale up via low-coordination, non-blocking
-epoch actions and purely asynchronous inter-machine communication.
+scale up via low-coordination, nonblocking
+epoch actions and purely asynchronous intermachine communication.
 %
 The source prioritizes request processing, making progress in between request batches.
 %
@@ -953,7 +954,7 @@ entry contained in the record.
 %
 % These records become part of its end-of-migration checkpoint.
 %
-Overall, these fine-grained inter-log dependencies represented by indirection
+Overall, these fine-grained interlog dependencies represented by indirection
 records accelerate migration completion by eliminating all I/O
 that would otherwise be needed to consolidate records and transmit them
 to the target.
