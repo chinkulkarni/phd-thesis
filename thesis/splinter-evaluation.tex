@@ -92,7 +92,7 @@ However, as pointed out above, it does affect throughput.
 At one core, throughput is reduced by 200~Kops/s (18\%), while at eight cores,
   the reduction is 700~Kops/s (17\%).
 This shows that, though extensions do increase the number of cycles each core
-  spends processing requests, it doesn't come at the cost of significant
+  spends processing requests, it does not come at the cost of significant
   increased coordination between the cores.
 
 \subsection{Tenant Density}
@@ -106,7 +106,7 @@ experiment captures extension isolation
 The results show that Splinter can efficiently support high tenant densities
   with minimal overhead.
 With isolation, the throughput at 1,024 tenants is 3.3~Mops/s, only
-700~Kops/s less than the throughput at 8 tenants. Additionally,
+700~Kops/s less than the throughput at eight tenants. Additionally,
 the throughput with isolation is consistently within 22\% of the throughput
 without isolation.
 
@@ -137,7 +137,7 @@ Without work stealing, Splinter's tail latency suffers by a factor of 2 under
 In this case, partitioning helps throughput due to locality and reduced
   contention (as evidenced by its relatively consistent median response time),
   but queues become imbalanced hurting tail latency.
-The unpartitioned approach doesn't respond as significantly to tenant skew
+The unpartitioned approach does not respond as significantly to tenant skew
   though it is slower overall, as expected.
 Unpartitioned execution results in
   42\% to 86\% worse median latency with 38\% to 155\% worse tail latency.
@@ -176,7 +176,7 @@ The remaining fraction of requests invoked a small extension that performed a
 Splinter performs well in the presence of misbehaving extensions.
 Throughput is steady at 3~Mops/s
   irrespective of the fraction of misbehaving requests.
-Median latency isn't shown, but it is steady as well.
+Median latency is not shown, but it is steady as well.
 Tail latency suffers as more requests misbehave, though it is within
   100~\us for fractions as high as one in a million requests.
 
@@ -202,7 +202,8 @@ Splinter improves the user-facing and server-side performance of these types of
   storage.
 
 Figure~\ref{fig:aggregate-bench} compares a completely client-based and a
-  Splinter extension-based implementation of such an aggregation over 4
+  Splinter extension-based implementation of such an aggregation over
+four
   records.
 Each of the store's 1,024 tenants owned a table with 300~K
   indirection lists pointing to 1.2~million records, totalling about 100~GB of
@@ -221,12 +222,13 @@ First, it improves performance from the client's perspective: the
   extension-based implementation reduces median latency by 38\% (from
   16~\us to 10~\us) under low load with larger gains under higher loads.
 This improvement is mainly due to a reduction in the number of round-trips;
-unlike the client-based extension, the \texttt{aggregate()} extension doesn't
+unlike the client-based extension, the \texttt{aggregate()} extension
+does not
   need to wait for the store to return an indirection list before it can start
   aggregation.
 Second, it improves performance from the server's perspective as well.
 Splinter's extension invocations are more expensive than plain \texttt{get()}
-  operations (\S\ref{sec:isolation-overhead}), but they eliminate
+  operations (Section~\ref{sec:isolation-overhead}), but they eliminate
   some of the costly network and RPC processing.
 Hence, saturating throughput improves from 1.2~M to 1.6~M aggregations
   per second.
@@ -281,7 +283,8 @@ It is designed for interactive data, but it embeds knowledge
 We have implemented its simple operations as an 800-line Splinter extension.
 
 Full details of TAO are beyond the scope of this chapter, but the basics are
-  simple. Aside from object put/get, TAO's \textsl{association lists} (e.g.\
+  simple. Aside from object put/get, TAO's \textsl{association lists}
+(e.g.,\
   \texttt{user1}'s ``likes'') allow one object to be
   associated to another via a typed, directed edges.
 For example, \texttt{user1}'s ``likes'' may be represented as an association list
@@ -315,7 +318,7 @@ the native \texttt{get()} helps eliminate the isolation
 overhead while executing an \texttt{object\_get}, and the extension helps
 reduce the number of round-trips required by an \texttt{assoc\_range}.
 
-This makes Splinter competitive with FaRM's TAO implementation which is the
+This makes Splinter competitive with FaRM's TAO implementation, which is the
   fastest known implementation.
 Interestingly FaRM, takes the opposite approach of Splinter.
 On FaRM, TAO operations use multiple RDMA reads and careful

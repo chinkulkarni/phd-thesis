@@ -347,7 +347,7 @@ Once the extension procedure has populated the response buffer, Intel's
   DDIO~\cite{ddio} transmits the data directly from the L1 cache, which avoids
   the cost of memory access for DMA of stored data.
 
-Listing~\ref{lst:aggregate} and Figure~\ref{fig:tao} show an example of how
+Figure~\ref{lst:aggregate} and Figure~\ref{fig:tao} show an example of how
   this works for a simple extension that sums up a set of values stored under
   keys that are listed as part of another stored value without any extra data copying.
 In Line~4, the extension obtains a reference to its transmit buffer to find
@@ -369,16 +369,16 @@ In all, data copying is only forced where it is needed, so the compiler has
 The store's \texttt{get()} call returns a \texttt{ReadBuf} rather than a plain
   slice (\texttt{\&[u8]}) in order to satisfy Rust's borrow checker.
 Calling \texttt{get()} cannot return an immutable reference or slice to a stored
-  value, because the borrow checker wouldn't be able to statically verify that the
+  value, because the borrow checker would not be able to statically verify that the
   reference would always refer to a valid location.
-For example, the compiler couldn't be sure that the store wouldn't garbage
+For example, the compiler could not be sure that the store would not garbage
   collect the value while the reference still exists.
 Furthermore, extension invocations are generators, and they must
-  yield regularly (\S\ref{sec:coop}).
+  yield regularly (Section~\ref{sec:coop}).
 Yielding marks the end and start of a new static scope, so
   each time the generator is resumed, the calling scope could vary.
-Any obtained references to a stored value couldn't be held across yields,
-  because the borrow checker wouldn't be able to verify that those
+Any obtained references to a stored value could not be held across yields,
+  because the borrow checker would not be able to verify that those
   references would still be valid on reentry.
 %In the end, this would complicate extension code and would force extensions make
   %additional \texttt{get()}s to ensure Rust could verify memory
@@ -386,12 +386,12 @@ Any obtained references to a stored value couldn't be held across yields,
 
 The \texttt{ReadBuf} returned by \texttt{get()} solves this.
 It is a smart pointer that maintains a reference count to ensure
-  the underlying stored object isn't disposed, and it allows the extension code
+  the underlying stored object is not disposed, and it allows the extension code
   to (re-)obtain a reference to the underlying object data.
 Once a \texttt{ReadBuf} is returned to a generator, it is stored within the
   generator's local state, so the generator owns this \texttt{ReadBuf}.
 Extensions cannot hold references between yields,
-  but by working with the \texttt{ReadBuf} it can (transparently) re-obtain a
+  but by working with the \texttt{ReadBuf} it can (transparently) reobtain a
   reference to the data without performing another \texttt{get()}.
 Rust's \texttt{Arc} smart pointer does the same;
   \texttt{ReadBuf} hides its constructor from extensions and disallows duplication.
@@ -399,7 +399,7 @@ This prevents extension code from creating \texttt{ReadBuf}s that persist
   beyond the life of a single request/response, which could otherwise hold back
   table heap garbage collection.
 
-\subsubsection{Avoiding Serialization and De-serialization}
+\subsubsection{Avoiding Serialization and Deserialization}
 \label{sec:ser-des}
 
 Allowing extensions to interact directly with receive buffers, transmit buffers,
@@ -425,10 +425,10 @@ If a slice (\texttt{\&[u8]}) is naturally aligned to the desired
 
 These casts are safe, but they are meaningless across architectures. As a
   result, they can only be used between a client and the store when they have
-  the same underlying platform (e.g.\ x86-64).
+  the same underlying platform (e.g.,\ x86-64).
 Similarly, they can only be used with extensions'
   \texttt{get}/\texttt{alloc}/\texttt{put} interface if all stores in
-  the system (e.g.\  before/after recovery, source/destination for migration) have matching hardware
+  the system (e.g.,\  before/after recovery, source/destination for migration) have matching hardware
   platforms.
 
 \subsection{Cooperatively Scheduled Extensions}
@@ -487,8 +487,8 @@ Note that the compiler generates the structure to hold a suspended
 Consequently, a worker's stack never concurrently contains state for
   different tenants (or even tasks); furthermore, whenever a task
   yields or completes, the worker's stack contains no extension state.
-This makes it easier to handle uncooperative extensions (\S\ref{sec:uncoop})
-  and load imbalance (\S\ref{sec:work-stealing}).
+This makes it easier to handle uncooperative extensions (Section~\ref{sec:uncoop})
+  and load imbalance (Section~\ref{sec:work-stealing}).
 
 \subsubsection{Uncooperative and Misbehaving Extensions}
 \label{sec:uncoop}
@@ -505,12 +505,12 @@ An extra (mostly idle) thread acts as a watchdog.
 If a task on a core fails to yield for a few milliseconds, the watchdog
   remedies the situation.
 First, the worker thread on the core with the uncooperative task is
-  re-pinned to a specific core that is shared among all misbehaving threads
+  repinned to a specific core that is shared among all misbehaving threads
   and low-priority background work that the store performs.
 Second, a new worker kernel thread is started and pinned to the idle core left behind
-  after the misbehaving thread was re-pinned.
+  after the misbehaving thread was repinned.
 Finally, the new worker steals the tasks remaining in the scheduler queue for
-  the re-pinned worker and resumes execution for these tasks.
+  the repinned worker and resumes execution for these tasks.
 Note, this is safe in part because all of the state of a suspended task is
   encapsulated.
 Tasks only have state on a worker's stack if they are running, so
@@ -518,14 +518,14 @@ Tasks only have state on a worker's stack if they are running, so
 Whenever a misbehaving task finally yields, the scheduler on that worker realizes
   that it has been displaced, and the worker thread terminates along with the task.
 
-Hence, misbehaving tasks don't block other requests, but they can still cause
+Hence, misbehaving tasks do not block other requests, but they can still cause
   disruption.
 Creating and migrating kernel threads is expensive,
   so there must be a disincentive against forcing watchdog action.
 Tenants that run uncooperative tasks will experience poor quality of
   service, since they must share a core with other disruptive
   work.
-Furthermore, when a worker is re-pinned the watchdog also takes away access to its
+Furthermore, when a worker is repinned the watchdog also takes away access to its
   receive and transmit queues, so tenants cannot get responses from bad
   requests and, thus, benefit from their misbehavior.
 % \textbf{Can you take away their ability to \texttt{put()} too?} % We can do this, but we don't yet -- we should put this is shortly after deadline.
@@ -533,7 +533,7 @@ Even so, billing policies should ensure such behavior is unprofitable.
 
 Aside from infinite loops, the store must also
   protect against other things that cannot be prevented with compile-time checks.
-For example, Rust doesn't have general exceptions, but
+For example, Rust does not have general exceptions, but
   extensions can raise exceptions with operations like division by
   zero that raise a \texttt{panic}.
 Splinter must ``catch'' these panics or they would terminate the worker,
@@ -562,12 +562,12 @@ worker thread (pinned to a core).
 As a result, tenants can steer requests to specific cores by placing their
   tenant id in the UDP destination port field.
 
-However, this approach alone can leave cores idle under imbalance, and, as a multi-tenant
+However, this approach alone can leave cores idle under imbalance, and, as a multitenant
   store, it is important for the system to deliver good resource utilization.
 Whenever the scheduler on a core has no
   incoming requests in its local receive queue, it attempts to steal requests
   from a neighbor's receive queue (Figure~\ref{fig:work-stealing}).
-Transmit queues aren't bound to specific (server-side) source ports, so the
+Transmit queues are not bound to specific (server-side) source ports, so the
   response can be sent directly from the core that stole the request.
 This simple form of soft affinity works well, and, since tasks are lightweight,
   it is also relatively easy for Splinter to take advantage of idle compute

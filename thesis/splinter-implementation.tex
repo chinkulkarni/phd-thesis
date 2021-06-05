@@ -13,8 +13,8 @@ The Splinter codebase is open sourced and freely available on github at
 the following link:
 \url{https://github.com/utah-scs/splinter}.
 
-The store needn't be written in Rust, but doing so has advantages.
+The store need not be written in Rust, but doing so has advantages.
 It prevents data races and segmentation faults within the store, but
   it also lets the store use Rust's type system and lifetimes to ensure that
-  mistakes aren't made with lifetimes of objects and references
+  mistakes are not made with lifetimes of objects and references
   handed across trust boundaries, which an adversary could exploit.
