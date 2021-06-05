@@ -3,7 +3,7 @@
 
 Shipping computation to data and isolating untrusted code are well-studied, and
 Splinter builds on prior work.
-However, prior work does not address multi-tenancy at Splinter's granularity and
+However, prior work does not address multitenancy at Splinter's granularity and
 number of tenants; further, no work addresses
 these issues with its throughput and latency goals, which are far
 beyond most cloud storage systems.
@@ -32,7 +32,7 @@ At 40~Gbps a Splinter store is never network bound, so combining Splinter's
 
 MapReduce~\cite{mapreduce} and Spark~\cite{spark} ship code to data
 sets, though latency is not a concern.  Even when compute is shipped to a storage
-(HDFS~\cite{hdfs}) node, data is still copied via interprocess
+(HDFS~\cite{hdfs}) node, data are still copied via interprocess
 communication.  Untrusted extensions, like those in Splinter, could
 eliminate these overheads.
 
@@ -51,7 +51,7 @@ abstractions to synthesize new
 services~\cite{corfu,tango,istore,sdds,boxwood,malacology}.
 Malacology~\cite{malacology} claims storage extensions have been popular
 in the Ceph distributed file system, showing that extensions are useful to
-developers. In these systems, extensions are trusted, so they don't work for
+developers. In these systems, extensions are trusted, so they do not work for
 cloud storage; Splinter is also focused on tight integration of fine-grained
 computation and storage rather than on coarse composition of software services.
 Comet~\cite{comet} embedded sandboxed Lua extensions into a decentralized hash
@@ -76,7 +76,7 @@ functionality, new operators, or complex algorithms in SQL is difficult and
 inefficient.
 %
 Some have extended SQL for specific domains, like graph
-processing~\cite{neo4j}, scientific computing~\cite{gmm,scidb} and
+processing~\cite{neo4j}, scientific computing~\cite{gmm,scidb}, and
 simulation~\cite{simsql}, showing that SQL by itself is insufficient for many domains.
 
 \subsubsection{Native-code Extensions}
@@ -85,11 +85,11 @@ The popular
 Redis~\cite{redis} in-memory store supports native extensions. In
 FaRM~\cite{farm-2014,farm-txns}, an RDMA-based in-memory store, applications are written as
 native, storage-embedded functions that are statically compiled into the
-server.  These systems don't allow extensions to be loaded at runtime, and
-application code is trusted so it does not work for multi-tenant cloud storage.
+server.  These systems do not allow extensions to be loaded at runtime, and
+application code is trusted so it does not work for multitenant cloud storage.
 Similarly, H-Store~\cite{hstore}, VoltDB~\cite{voltdb}, and
 Hazelcast~\cite{hazelcast} are in-memory stores that support Java-based
-procedures, though none of them provide multi-tenancy.
+procedures, though none of them provide multitenancy.
 
 \subsection{Fault Isolation}
 \label{sec:sfi}
@@ -131,12 +131,12 @@ Language-level approaches to kernel extension~\cite{spin,singularity} closely
 match Splinter's design and goals. SPIN let language-isolated extensions run
 as part of the kernel. It eliminated runtime overheads (aside from garbage
 collection), since extensions were compiled; it eliminated control transfer
-overheads, since it didn't require page table switching; and it eliminated
+overheads, since it did not require page table switching; and it eliminated
 copying between protection domains, since type-safe pointers worked as
 capabilities.
 Like Splinter, where tenants must write Rust code, a
 key downside of SPIN was that extensions had
-to be written in Modula-3, not C, so legacy code couldn't be used.
+to be written in Modula-3, not C, so legacy code could not be used.
 %
 Java also ``sandboxed'' applets using type-safety and specialized class
 loaders, which supported inexpensive control transfer and data access between
@@ -152,11 +152,11 @@ Splinter builds on these ideas, bringing them to storage and moving beyond
   static domains to a runtime extensible service.
 Tock~\cite{tockos-2017} is an embedded OS that decomposes its kernel into
   untrusted \textsl{capsules} by exploiting Rust's safety. Tock's capsules
-  are similar to Splinter's extensions, but they don't protect against denial of
-  service (infinite loops) and capsules are static -- they can't be added to a running kernel.
+  are similar to Splinter's extensions, but they do not protect against denial of
+  service (infinite loops) and capsules are static -- they can not be added to a running kernel.
 These also differ from Splinter in that they assume a small number of trust
   domains; they are targeted at software decomposition.
-Splinter targets dense multi-tenancy with no static
+Splinter targets dense multitenancy with no static
   bound on the number of trust domains.
 
 %Language-isolated kernel extensions had significant research impact but less

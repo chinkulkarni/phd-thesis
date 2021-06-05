@@ -4,7 +4,7 @@ Low-latency stores adopt simple, stripped-down designs that optimize
 for normal-case performance, and in the process, trade-off
 practicality and cost-effectiveness at cloud scale.
 
-This thesis shows that this trade-off is unnecessary. Carefully
+This dissertation shows that this trade-off is unnecessary. Carefully
 leveraging and extending new and existing abstractions for scheduling,
 data sharing, lock-freedom, and isolation will yield feature-rich
 systems that
@@ -34,7 +34,7 @@ record heap among them.
 %
 This risks contention when some records are hot and frequently
 mutated, but this is more than offset by avoiding software-level
-inter-core request forwarding or routing within server VMs.
+intercore request forwarding or routing within server VMs.
 %
 In contrast to totally-ordered or stop-the-world approaches used by most
 systems, cores in Shadowfax avoid stalling to synchronize with one another, even when
