@@ -48,7 +48,7 @@ hash tables. FaRM supports scale out and crash recovery by relying on
 whole-machine battery backup and in-memory replication.  FaRM's reported
 per-core throughput is about 300,000 reads/s/core, compared to Shadowfax's
 1.5~million read-modify-writes/s/core, though there are differences in
-experimental set up. For example, FaRM doesn't report numbers for
+experimental set up. For example, FaRM does not report numbers for
 read-modify-write or write-only workloads which are significantly more
 expensive in FaRM, since they involve server CPU, require replication, and
 cannot be done with one-sided RDMA operations.

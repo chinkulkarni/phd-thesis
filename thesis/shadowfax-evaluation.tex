@@ -4,30 +4,30 @@
 To evaluate Shadowfax, we focused on six key questions:
 \begin{enumerate}
 \item {\bf Does it preserve \faster{}'s performance?}
-  \S\ref{sec:eval:clients} shows that Shadowfax preserves \faster{}'s
+  Section~\ref{sec:eval:clients} shows that Shadowfax preserves \faster{}'s
   scalability and adds in negligible overhead.
 %
   Its throughput scales to 130~Mops/s on 64~threads on a VM even when using
   Linux TCP.
 
 \item {\bf How does it compare to an alternate design?}
-  \S\ref{sec:eval:clients} shows that Shadowfax performs 4x better than
+  Section~\ref{sec:eval:clients} shows that Shadowfax performs 4x better than
   a state-of-the-art approach that partitions dispatch as well as data.
 
 \item {\bf Does it provide low latency?}
-  \S\ref{sec:eval:latency} shows that while serving a throughput of 130~Mops/s,
+  Section~\ref{sec:eval:latency} shows that while serving a throughput of 130~Mops/s,
   Shadowfax's median latency is 1.3~ms on Linux TCP.
 %
   Using two-sided RDMA decreases this to 40~\us.
 
 \item {\bf Can it maintain high throughput during scale out?}
-  In \S\ref{sec:eval:migration}, we see that when migrating 10\% of a server's
+  In Section~\ref{sec:eval:migration}, we see that when migrating 10\% of a server's
   hash range, Shadowfax's scale-out protocol can maintain throughput
   above 80~Mops/s.
 %
   Parallel data migration can help complete scale out in under 17~s,
   and sampled records help recover throughput 30\% faster
-  (\S\ref{sec:eval:sampling}).
+  (Section~\ref{sec:eval:sampling}).
 
 % \item[Can sharding be lazy and flexible?]
 %   \S\ref{sec:eval:migration:views} shows that view validation has lower
@@ -38,7 +38,7 @@ To evaluate Shadowfax, we focused on six key questions:
 %   flexible about how it distributes load.
 
 \item {\bf Do indirection records help scale out?}
-  \S\ref{sec:eval:migration:indir} shows
+  Section~\ref{sec:eval:migration:indir} shows
   that by restricting migration to main memory, indirection records help
   speed scale out by 6x.
 %
@@ -52,7 +52,7 @@ To evaluate Shadowfax, we focused on six key questions:
 % They can be cleaned up during compaction with no additional overhead.
 
 \item {\bf Do views reduce scale out's impact on normal operation?}
-  In \S\ref{sec:eval:migration:views}, we show that validating ownership
+  In Section~\ref{sec:eval:migration:views}, we show that validating ownership
   using views has a negligible impact on normal case server throughput.
 %
   When compared to hash validating each request within a batch, views
@@ -60,7 +60,7 @@ To evaluate Shadowfax, we focused on six key questions:
   ranges owned by the server.
 
 \item {\bf Can it scale across scales?}
-  \S\ref{sec:eval:system-scalability} shows that when scaled across
+  Section~\ref{sec:eval:system-scalability} shows that when scaled across
   machines, Shadowfax continues to retain \faster's high throughput.
 %
   A cluster consisting of 768 threads spread across 12 servers scales
@@ -113,7 +113,7 @@ state-of-the-art in data migration.
 \begin{enumerate}
 \item \textbf{Seastar+Memcached}~\cite{seastar}
 is an open-source framework for building high
-performance multi-core services.
+performance multicore services.
 %
 Its shared-nothing design constrasts with Shadowfax;
 servers partition data across cores, eliminating the need for locking.
@@ -223,7 +223,7 @@ already 4x faster than Seastar.
 %
 This is because Seastar partitions work at the wrong layer; threads maintain
 independent indices to avoid synchronizing on records, but this forces threads
-to use inter-core message passing when they receive a request to route it to
+to use intercore message passing when they receive a request to route it to
 the thread that has that record.
 %
 To ensure that this is the case and that it is not the result of a bottleneck in
@@ -264,7 +264,7 @@ Azure Infrc and on CloudLab~\cite{cloudlab}.
 Figure~\ref{fig:acceleration} demonstrates that Shadowfax's throughput
 scales linearly on these platforms too.
 
-\subsubsection{Insert only workload}
+\subsubsection{Insert Only Workload}
 \label{sec:eval:append-only}
 
 \faster's \hlog is key to Shadowfax's high throughput since it allows
@@ -325,7 +325,7 @@ throughput small at 32~KB, which also keeps median latency low at 1.3~ms.
 %With hardware acceleration disabled, the software network stack now
 %becomes a bottleneck (\texttt{recv()}).
 %
-Without acceleration, increased batch size doesn't help; with 32~KB
+Without acceleration, increased batch size does not help; with 32~KB
 batches throughput drops to 75~Mops/s, and median latency increases to 2.2~ms.
 
 Predictably, the batch size required to saturate throughput on Infrc is
@@ -412,7 +412,7 @@ Overall, throughput drops as the memory budget decreases.
 This is because the system needs to issue random IO to fetch records
 from SSD.
 %
-Once fetched, these records are appended to the \hlog's tail which
+Once fetched, these records are appended to the \hlog's tail, which
 flushes records at its head to SSD leading to more random IO during
 future requests.
 %
@@ -428,7 +428,7 @@ begins to happen only at 50~GB.
 Throughput still drops because of low SSD IOPS
 (Azure throttled our VMs to 96,000 IOPS), decreasing to 3.5~Mops/s at 20~GB.
 %
-However, this is still 24$\times{}$ better than the uniform case which
+However, this is still 24$\times{}$ better than the uniform case, which
 drops to 0.146~Mops/s.
 
 \subsection{Scale Out}
@@ -445,7 +445,7 @@ To demonstrate this, we measured throughput during scale up.
 In a 5-minute experiment with one client and two servers (a source and a
 target), the entire hash space initially resides at the source.
 %
-After one minute, 10\% of this hash range is moved to the target.
+After 1 minute, 10\% of this hash range is moved to the target.
 %
 Figure~\ref{fig:migration} shows system throughput during
 the experiment; Figure~\ref{fig:migration-split}
@@ -505,7 +505,7 @@ completing 100~s after migration start.
 %
 Hence, practical migrations must be small and incremental to bound
 delay; however, throughput recovery is more important in Shadowfax's target
-applications whereas latency can be tolerated with asynchrony.
+applications, whereas latency can be tolerated with asynchrony.
 
 We also ran the above experiment on a larger cluster of four 64 core machines
 on CloudLab~\cite{cloudlab} and obtained similar results; aggregate cluster
@@ -529,7 +529,7 @@ Thoughput improves quickly after this phase, since these are hotter records.
 However, the second phase is single threaded, scans over files on SSD,
 and takes 165~s to complete.
 %
-Hence, scale out takes 180~s, and the source and target remain inter-dependent
+Hence, scale out takes 180~s, and the source and target remain interdependent
 for fault tolerance.
 
 Indirection records solve this, completing migration in 32~s
@@ -589,7 +589,7 @@ Figure~\ref{fig:migration-sampling} shows target throughput
 when this is enabled (Sampling) and when it is disabled (No
 Sampling).
 %
-In this experiment, all data starts in the source's memory, so scale out
+In this experiment, all data start in the source's memory, so scale out
 completes in 17~s.
 %
 When enabled, throughput at the target rises up to 8~Mops/s immediately
