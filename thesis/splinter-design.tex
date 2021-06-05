@@ -59,7 +59,7 @@ A key challenge in Splinter is ensuring its fine-grained tasks from different
 Low-overhead trust boundary crossings are essential to Splinter's
   design;
 they enable easy and inexpensive task switching, dispatch
-(\S\ref{sec:coop}), and work stealing (\S\ref{sec:work-stealing}),
+(Section~\ref{sec:coop}), and work stealing (Section~\ref{sec:work-stealing}),
   which keep response latency low and CPU utilization high across all the cores
   of the store.
 
@@ -99,16 +99,16 @@ The compiler is trusted and must be run by the storage provider.
 Tenants must not be able to tamper with the emitted extension, so it must be
   loaded directly into the store by the provider or the provider must
   ensure its integrity in transit between the trusted compiler and the store.
-Aside from Rust's standard type and lifetime checks (\S\ref{sec:safety}),
+Aside from Rust's standard type and lifetime checks (Section~\ref{sec:safety}),
   Splinter extensions have the following static restrictions:
   \begin{enumerate}
     \item {\bf No Unsafe Code:}
       Unsafe code could skip compiler checks resulting in memory unsafety.
       So, our wrapper over \texttt{rustc} disallows unsafe code in extensions
-      (\S\ref{sec:unsafe}).
+      (Section~\ref{sec:unsafe}).
     \item {\bf Module Whitelist:}
       Code from external dependencies could include unsafe code, and that
-        unsafe code shouldn't be incorporated into untrusted extensions unless it
+        unsafe code should not be incorporated into untrusted extensions unless it
         is trusted.
       Even beyond memory safety, such unsafe blocks could, for example, make
         syscalls.
@@ -121,10 +121,11 @@ Aside from Rust's standard type and lifetime checks (\S\ref{sec:safety}),
 These checks combine with three other runtime guarantees to
   ensure isolation:
 the store only accepts or provides references to insert/fetch a value under a key
-  if the same tenant owns both the extension and the key (\S\ref{sec:db-iface});
-it prevents uncooperative extensions from dominating CPU time and stack, heap, or record memory (\S\ref{sec:coop}); and
+  if the same tenant owns both the extension and the key (Section~\ref{sec:db-iface});
+it prevents uncooperative extensions from dominating CPU time and stack,
+heap, or record memory (Section~\ref{sec:coop}); and
 it catches panics (runtime exceptions) and stack overflows that occur while executing an
-  extension operation (\S\ref{sec:coop}).
+  extension operation (Section~\ref{sec:coop}).
 Next, we describe what guarantees this gives the storage provider and its tenants;
   the runtime checks are described later along with details about the execution model.
 
@@ -151,12 +152,12 @@ running on it should be dealt with using standard security best practices.
 
 Aside from providing good quality of service to tenants, service providers
   have one key concern: protecting the secrecy and integrity of tenants' data.
-Extensions don't share state with one another, and Splinter provides no means for
-inter-extension communication. So, no complex sharing policies are needed;
+Extensions do not share state with one another, and Splinter provides no means for
+interextension communication. So, no complex sharing policies are needed;
 Splinter's only goal is extension isolation.
 Rust references act as capabilities; they ensure that extensions cannot
 fabricate arbitrary references
-to storage state or to other tenants' state~(\S\ref{sec:safety}).
+to storage state or to other tenants' state~(Section~\ref{sec:safety}).
 
 Like any database, Splinter's Trusted Computing Base (TCB) includes the
     libraries, compilers, hardware, etc.\ on which it is built; while
@@ -184,15 +185,15 @@ On the plus side, extensions \emph{must} break one of these layers of
 
 Splinter decreases the attack surface with respect to the virtual memory system --
     both hardware and kernel components.
-Because it doesn't rely on virtual address translation for
+Because it does not rely on virtual address translation for
     isolation,
-    recent Meltdown speculation attacks don't affect its design~\cite{meltdown-2018}%
+    recent Meltdown speculation attacks do not affect its design~\cite{meltdown-2018}%
 %\old{; however, it must use compiler mitigation against recent attacks on speculatively
     %executed indirect branches~\cite{spectre-2018,llvm-spectre}.}%
 ; however, Spectre-based speculation attacks do affect Splinter~\cite{sbo,spectre-2018}.
 Like any system that runs untrusted code or operates on untrusted
   inputs, Splinter would require special steps to mitigate these side channels.
-It already limits them in part because it doesn't provide explicit
+It already limits them in part because it does not provide explicit
   timing functions to extensions.
 Full protection will require compiler support~\cite{llvm-spectre},
 hardened storage interfaces (like
@@ -222,7 +223,7 @@ This is especially true in a server that processes requests across threads,
 Rust provides various accommodations for this, such as moving ownership between
   bindings and runtime reference counting that is safe but implemented in unsafe Rust.
 Splinter efficiently handles these issues while working within
-\texttt{rustc}'s static safety checks (\S\ref{sec:access}).
+\texttt{rustc}'s static safety checks (Section~\ref{sec:access}).
 Unlike C/C++ pointers, Rust references cannot be fabricated or manipulated with
   arithmetic; they always refer to a valid, live object.
 Rust supports pointers but their use is restricted for safety.
@@ -247,14 +248,14 @@ In some cases it is not desired.
 For example, file I/O can be induced through the Rust standard
   library.
 To prevent this, Splinter restricts extensions to use a subset of the standard
-  library that doesn't include I/O or OS functionality.
+  library that does not include I/O or OS functionality.
 
 Our experience has been that safe Rust combined with basic data structures from
   its standard library are sufficient to write even complex imperative extensions
   like Facebook's TAO~\cite{tao-2013}.
 In cases where unsafe code could provide a performance benefit, the store can
   provide that functionality if it is deemed safe to do so, since it is trusted
-  and can include \texttt{unsafe} code (\S\ref{sec:ser-des}).
+  and can include \texttt{unsafe} code (Section~\ref{sec:ser-des}).
 
 \subsection{Store Extension Interface}
 \label{sec:db-iface}
@@ -276,10 +277,10 @@ Extensions can \texttt{put()} data they receive over the network
   or new values that they produce into the store.
 %Both are handled in the same way. 
 When an extension invocation request is received from a tenant, the store invokes the indicated operation.
-Incoming data is in a packet buffer that is registered with the NIC.
+Incoming data are in a packet buffer that is registered with the NIC.
 Those buffers cannot be used for long-term storage
   because the NIC must use them to receive new requests;
-data that must be preserved needs to be copied into the store.
+data that must be preserved need to be copied into the store.
 
 Splinter tries to ensure that data can be moved from NIC buffers into the
     store with a single copy.
@@ -327,7 +328,7 @@ Extensions can interact with stored data in a similar way, requiring only one
   copy into a response buffer to return values from the store.
 When an extension procedure is invoked, it is also provided with a response
   buffer that can be incrementally filled via \texttt{resp()}.
-On each extension procedure invocation, the store pre-populates the response
+On each extension procedure invocation, the store prepopulates the response
   buffer's packet headers; extensions can only append their data after these
   headers.
 All response buffers are pre-registered with the NIC for transmission.

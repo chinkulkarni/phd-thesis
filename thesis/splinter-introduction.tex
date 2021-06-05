@@ -14,12 +14,12 @@ At microsecond timescales, even small costs for isolation, containerization, or
   request dispatching dominate, placing practical limits on the granularity of
   functions that applications can offload to storage.
 
-We resolve this tension in \textsl{Splinter}, a multi-tenant in-memory key-value store with
+We resolve this tension in \textsl{Splinter}, a multitenant in-memory key-value store with
   a new approach to pushing compute to storage servers.
 Splinter preserves the low remote access latency (9~\us) and high throughput (3.5~Mops/s)
   of in-memory storage
   while adding native-code runtime \textsl{extensions} and the dense
-  \textsl{multi-tenancy} (thousands of tenants) needed in modern data centers.
+  \textsl{multitenancy} (thousands of tenants) needed in modern data centers.
 Tenants send arbitrary type- and memory-safe extension code to
   stores at runtime, adding new operations, data types, or
   storage personalities.
@@ -33,7 +33,7 @@ Splinter's lightweight isolation lets thousands of untrusted tenants
 Splinter's design springs from the intersection of three trends:
   \textsl{in-memory storage with low-latency networking}, which is driving down
   the practical limits of request granularity;
-\textsl{multi-tenancy} driven by the cloud and the efficiency gains of
+\textsl{multitenancy} driven by the cloud and the efficiency gains of
   consolidation;
 and \textsl{serverless computing}, which is training developers to
   write stateless, decomposed application logic that can run anywhere in order to gain agility,
@@ -86,14 +86,14 @@ Together, these trends drive Splinter's key design goals:
 %    by the misbehaving extension, preserving good quality of service for the
 %    others.
 
-\item {\bf Adaptive Multi-core Request Routing:}
+\item {\bf Adaptive Multicore Request Routing:}
   With multiple tenants sharing a single machine, synchronization over tenant
     state can become a bottleneck.
   To minimize contention, tenants maintain locality by routing requests to
     preferred cores on Splinter servers.
-  We can't, however, use a hard partitioning, as we don't want high skew to
+  We can not, however, use a hard partitioning, as we do not want high skew to
     create hotspots and underused cores~\cite{zygos}.
-    Routing decisions can't get in the way of fast dispatch of requests~\cite{ix}.
+    Routing decisions can not get in the way of fast dispatch of requests~\cite{ix}.
  % To prevent cores from becoming overloaded under high skew, Splinter uses
  %   \textit{work stealing}, allowing underloaded cores to steal requests from
  %   overloaded ones.
@@ -103,7 +103,7 @@ Together, these trends drive Splinter's key design goals:
 These goals give rise to Splinter's design.
 Developers write type-safe, memory-safe extensions in Rust~\cite{rust}
 that they push to Splinter servers.
-Exploiting type-safety for lightweight isolation isn't new;
+Exploiting type-safety for lightweight isolation is not new;
 SPIN~\cite{spin} allowed applications to safely and dynamically load
 extensions into its kernel by relying on language-enforced isolation.
 Similarly, NetBricks~\cite{netbricks-2016} applied Rust's safety

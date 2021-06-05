@@ -48,10 +48,11 @@ microsecond~\cite{ramcloud}.
 
 One solution is to customize the storage tier of each application to
 support specialized data types. However, to improve efficiency and
-utilization, storage tiers are usually deployed as multi-tenant
+utilization, storage tiers are usually deployed as multitenant
 services~\cite{bigtable-2008,dynamo}, so they cannot be
 customized for every possible data structure.
-SQL could be used at the storage tier, but SQL is known to be a poor fit for data
+SQL (Structured Query Language) could be used at the storage tier, but
+SQL is known to be a poor fit for data
 types like graphs and matrices, does not support abstract data types,
 and is too expensive at microsecond timescales. Instead,
 Splinter takes a different approach;
@@ -61,18 +62,18 @@ implement richer data types and operators, avoiding extra round trips
 and reducing data movement.
 
 \subsection{The Need for Lightweight Isolation}
-Multi-tenancy at the storage layer makes running extensions challenging;
+Multitenancy at the storage layer makes running extensions challenging;
     a tenant cannot be allowed to access memory it does not own, starve
     others for resources, or crash the system.
 The major challenge is that, at microsecond timescales, context switches and
     data copying across isolation boundaries significantly hurt performance.
 
 To quantify the overhead of hardware isolation, we simulated an
-  8-core multi-tenant store that isolates extensions using
+  8-core multitenant store that isolates extensions using
   processes while varying the numbers of tenants making requests to it.
 Simulated requests consume 1.5~\us of compute at the store; this
   is based on our benchmarks of simple unisolated operations on Splinter
-  (\S\ref{sec:isolation-overhead}); our numbers are similar to those reported
+  (Section~\ref{sec:isolation-overhead}); our numbers are similar to those reported
   by others' kernel-bypass stores~\cite{ramcloud}.
 Different context switch costs are simulated to show the
   overheads of hardware-based isolation of tenant code.
