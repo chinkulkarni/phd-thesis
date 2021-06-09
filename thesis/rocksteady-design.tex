@@ -286,7 +286,7 @@ memory from the remote server. That is, a single RDMA read {\em scatters} the
 fetched value locally; it cannot {\em gather} multiple remote locations with a
 single request. As a result, an RDMA read initiated by the target could only
 return a single data record per operation unless the source
-pre-aggregated all records for migration beforehand, which would undo the
+preaggregated all records for migration beforehand, which would undo the
 zero-copy benefits of RDMA.
 Additionally, one-sided RDMA would require the target
 to be aware of the source's log's structure and memory addresses. This

@@ -113,7 +113,7 @@ Aside from Rust's standard type and lifetime checks (Section~\ref{sec:safety}),
       Even beyond memory safety, such unsafe blocks could, for example, make
         syscalls.
       So, our wrapper restricts external dependencies to modules that are
-        re-exported by a Splinter library that includes many standard functions
+        reexported by a Splinter library that includes many standard functions
         and types.
       This restriction applies to the standard library (\texttt{std}) as well: the
         wrapper only exposes whitelisted \texttt{std} functionality to extensions.
@@ -331,7 +331,7 @@ When an extension procedure is invoked, it is also provided with a response
 On each extension procedure invocation, the store prepopulates the response
   buffer's packet headers; extensions can only append their data after these
   headers.
-All response buffers are pre-registered with the NIC for transmission.
+All response buffers are preregistered with the NIC for transmission.
 
 Extensions call \texttt{get(table, key)}, and they receive back a reference to
   the underlying portion of the table heap that contains the value associated
@@ -387,7 +387,7 @@ Any obtained references to a stored value could not be held across yields,
 The \texttt{ReadBuf} returned by \texttt{get()} solves this.
 It is a smart pointer that maintains a reference count to ensure
   the underlying stored object is not disposed, and it allows the extension code
-  to (re-)obtain a reference to the underlying object data.
+  to (re)obtain a reference to the underlying object data.
 Once a \texttt{ReadBuf} is returned to a generator, it is stored within the
   generator's local state, so the generator owns this \texttt{ReadBuf}.
 Extensions cannot hold references between yields,
@@ -408,7 +408,7 @@ Allowing extensions to interact directly with receive buffers, transmit buffers,
 Extensions cannot perform unsafe operations, otherwise they could thwart Rust's
   memory safety guarantees.
 Unfortunately, this means safe Rust code cannot cast an opaque byte array to/from
-  different types to avoid the need to serialize/de-serialize data.
+  different types to avoid the need to serialize/deserialize data.
 For example, if \texttt{args()} returned an 8-byte slice an extension may desire
   to treat that slice data as a 64-bit unsigned value.
 Safe Rust disallows this.

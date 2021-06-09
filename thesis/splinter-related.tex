@@ -153,7 +153,7 @@ Splinter builds on these ideas, bringing them to storage and moving beyond
 Tock~\cite{tockos-2017} is an embedded OS that decomposes its kernel into
   untrusted \textsl{capsules} by exploiting Rust's safety. Tock's capsules
   are similar to Splinter's extensions, but they do not protect against denial of
-  service (infinite loops) and capsules are static -- they can not be added to a running kernel.
+  service (infinite loops) and capsules are static -- they cannot be added to a running kernel.
 These also differ from Splinter in that they assume a small number of trust
   domains; they are targeted at software decomposition.
 Splinter targets dense multitenancy with no static

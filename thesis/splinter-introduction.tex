@@ -91,9 +91,9 @@ Together, these trends drive Splinter's key design goals:
     state can become a bottleneck.
   To minimize contention, tenants maintain locality by routing requests to
     preferred cores on Splinter servers.
-  We can not, however, use a hard partitioning, as we do not want high skew to
+  We cannot, however, use a hard partitioning, as we do not want high skew to
     create hotspots and underused cores~\cite{zygos}.
-    Routing decisions can not get in the way of fast dispatch of requests~\cite{ix}.
+    Routing decisions cannot get in the way of fast dispatch of requests~\cite{ix}.
  % To prevent cores from becoming overloaded under high skew, Splinter uses
  %   \textit{work stealing}, allowing underloaded cores to steal requests from
  %   overloaded ones.

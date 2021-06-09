@@ -30,7 +30,7 @@ migration by setting a cancellation flag in the metadata server.
 %
 Then, it transfers ownership of hash ranges back to the source
 (incrementing the source and target's view), restores both machines using
-their pre-migration checkpoints, and recovers requests on hash
+their premigration checkpoints, and recovers requests on hash
 ranges that were issued during migration at the source.
 
 This cancellation procedure ensures migration is deadlock-free.
